@@ -1,0 +1,7 @@
+# Ignore everything by default
+**
+
+# Include only what we need for backend build
+!/backend
+!/Dockerfile
+!/railway.json
