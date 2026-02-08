@@ -1,17 +1,41 @@
-FROM node:20-alpine
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source files
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY index.html ./
+COPY public ./public
 COPY src ./src
 
-RUN npm ci
+# Build for production
+RUN npm run build
 
-EXPOSE 5173
+# Production stage - serve with simple HTTP server
+FROM node:20-alpine
 
-CMD ["npm", "run", "dev"]
+WORKDIR /app
+
+# Install serve to host static files
+RUN npm install -g serve
+
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+
+# Railway uses PORT environment variable
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Serve the built files
+CMD serve -s dist -l $PORT
