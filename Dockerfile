@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+# Install required system dependencies for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app/backend
 
 # Copy backend files
