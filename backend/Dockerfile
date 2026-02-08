@@ -43,6 +43,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 
+# Generate Prisma client in production stage
+RUN npx prisma generate
+
 # Copy .env if it exists (optional)
 COPY .env* ./
 
@@ -53,5 +56,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/docs', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# Run migrations then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy || npx prisma db push --skip-generate && node dist/main.js"]
+# Start the app
+CMD ["node", "dist/main.js"]
