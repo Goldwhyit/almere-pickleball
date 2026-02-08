@@ -37,5 +37,5 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Serve the built files
-CMD serve -s dist -l $PORT
+# Serve the built files on specified port
+CMD ["sh", "-c", "serve -s dist -p $PORT"]
