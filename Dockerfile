@@ -9,11 +9,14 @@ COPY backend/nest-cli.json ./
 COPY backend/src ./src
 COPY backend/prisma ./prisma
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev for build)
+RUN npm ci
 
 # Build
 RUN npm run build
+
+# Remove dev dependencies for production
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
