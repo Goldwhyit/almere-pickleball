@@ -1,0 +1,30 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run linter (pas aan voor jouw project)
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Lint errors found. Fix them before committing."
+  exit 1
+fi
+
+# Run tests (optioneel, kan lang duren)
+# npm test
+# if [ $? -ne 0 ]; then
+#   echo "❌ Tests failed. Fix them before committing."
+#   exit 1
+# fi
+
+# Changelog reminder
+if ! git diff --cached --name-only | grep -q "CHANGELOG.md"; then
+  echo "⚠️  CHANGELOG.md is niet bijgewerkt"
+  read -p "Toch committen? (y/n) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+
+echo "✅ Pre-commit checks passed!"

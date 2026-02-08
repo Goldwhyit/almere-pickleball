@@ -1,0 +1,221 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Account types enum
+enum AccountType {
+  TRIAL
+  MEMBER
+  TRIAL_EXPIRED
+  ADMIN
+}
+
+// Trial lesson status enum
+enum LessonStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// User - Authentication entity
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  member    Member?
+}
+
+// Member - User profile with trial fields
+model Member {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  firstName String
+  lastName  String
+  phone     String?
+  dateOfBirth DateTime?
+  street       String?
+  houseNumber  String?
+  postalCode   String?
+  city         String?
+
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+
+  hasPlayedBefore   String?
+  experienceLevel   String?
+  otherSports       String?
+
+  // Membership fields
+  membershipType    String?     // YEARLY_UPFRONT, YEARLY, MONTHLY, PER_SESSION, PUNCH_CARD
+  punchCardCount    Int         @default(0)  // Number of sessions remaining on punch card
+  credit            Float       @default(0)   // Credit balance for PER_SESSION members (in euros)
+
+  // Membership payment & expiry tracking
+  membershipStartDate  DateTime?
+  membershipExpiryDate DateTime?
+  lastPaymentDate      DateTime?
+  nextPaymentDue       DateTime?
+  paymentStatus        String      @default("PENDING") // PENDING, PAID, OVERDUE, EXPIRED
+  lastPaidMonth        String?     // YYYY-MM format - tracks which month's payment is current (for monthly billing)
+
+  // Trial system fields
+  accountType       AccountType @default(TRIAL)
+  trialStartDate    DateTime?
+  trialEndDate      DateTime?
+  trialLessonsUsed  Int         @default(0)
+  isTrialExpired    Boolean     @default(false)
+
+  // Conversion tracking
+  conversionDate    DateTime?
+  stopReason        String?
+  stopFeedback      String?
+
+  // Preferences
+  duprRating        Float?
+  preferences       String?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  trialLessons TrialLesson[]
+  trainingRegistrations TrainingRegistration[]
+  payments Payment[]
+
+  @@index([userId])
+  @@index([accountType])
+}
+
+// Payment - Payment records for memberships and sessions
+model Payment {
+  id        String     @id @default(cuid())
+  memberId  String
+  member    Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  // Payment details
+  amount          Float
+  currency        String      @default("EUR")
+  paymentMethod   String?     // IDEAL, CREDITCARD, BANCONTACT, etc.
+  status          String      @default("PENDING") // PENDING, PAID, FAILED, REFUNDED, CANCELLED
+
+  // Payment type
+  paymentType     String      // MEMBERSHIP_YEARLY, MEMBERSHIP_MONTHLY, PUNCH_CARD, PER_SESSION
+  description     String
+
+  // External payment provider (Mollie/Stripe)
+  externalPaymentId  String?  @unique
+  paymentUrl         String?
+
+  // Dates
+  paidAt          DateTime?
+  expiresAt       DateTime?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+  @@index([paymentType])
+}
+
+// TrialLesson - Individual scheduled lesson
+model TrialLesson {
+  id        String     @id @default(cuid())
+  memberId  String
+  member    Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  // Lesson details
+  scheduledDate   DateTime
+  scheduledTime   String  // Format: "HH:mm"
+  location        String  @default("Sporthal Almere, Bataviaplein 60")
+
+  // Status
+  status          LessonStatus @default(SCHEDULED)
+
+  // Admin check-in
+  checkInTime     DateTime?
+  completedAt     DateTime?
+  notes           String?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+  @@index([scheduledDate])
+}
+
+// TrainingRegistration - Registrations for training dates (for monthly/yearly members)
+model TrainingRegistration {
+  id        String     @id @default(cuid())
+  memberId  String
+  member    Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  // Training details
+  trainingDate  DateTime
+  trainingTime  String  // Format: "HH:mm"
+  location      String
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([memberId, trainingDate, location])
+  @@index([memberId])
+  @@index([trainingDate])
+  @@index([location])
+}
+
+// Placeholder models for future expansion
+model Photo {
+  id        String     @id @default(cuid())
+  title     String
+  alt       String
+  imageUrl  String
+  order     Int        @default(0)  // Display order
+  isActive  Boolean    @default(true)
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([isActive])
+  @@index([order])
+}
+
+model Tournament {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Match {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model NewsArticle {
+  id        String     @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}

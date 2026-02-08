@@ -1,0 +1,17 @@
+# Type: feat|fix|docs|style|refactor|test|chore
+
+# Scope: component/file waar wijziging is
+
+# Subject: korte beschrijving (max 50 chars)
+
+[type]([scope]): [subject]
+
+# Body: uitgebreide uitleg (waarom, niet wat)
+
+# Wrap at 72 chars
+
+# Footer: breaking changes, issue refs
+
+# BREAKING CHANGE: beschrijving
+
+# Closes #123, #456

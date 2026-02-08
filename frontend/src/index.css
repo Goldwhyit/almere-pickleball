@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-ap-light text-ap-black;
+  }
+}
+
+@layer utilities {
+  /* Brand overrides for common Tailwind utility colors */
+  .bg-gray-50 {
+    background-color: #f4f6f8 !important;
+  }
+  .bg-gray-100 {
+    background-color: #f4f6f8 !important;
+  }
+
+  .bg-blue-600 {
+    background-color: #1f6fb2 !important;
+  }
+  .bg-blue-700 {
+    background-color: #175790 !important;
+  }
+  .bg-blue-800 {
+    background-color: #134b7f !important;
+  }
+  .text-blue-600 {
+    color: #1f6fb2 !important;
+  }
+  .text-blue-700 {
+    color: #175790 !important;
+  }
+  .border-blue-200 {
+    border-color: #a3c7ef !important;
+  }
+  .border-blue-500 {
+    border-color: #1f6fb2 !important;
+  }
+
+  .bg-red-600 {
+    background-color: #d62828 !important;
+  }
+  .bg-red-700 {
+    background-color: #a82020 !important;
+  }
+  .text-red-600 {
+    color: #d62828 !important;
+  }
+  .border-red-500 {
+    border-color: #d62828 !important;
+  }
+
+  .bg-yellow-500 {
+    background-color: #f2e205 !important;
+  }
+  .bg-yellow-600 {
+    background-color: #d6c705 !important;
+  }
+  .text-yellow-500 {
+    color: #f2e205 !important;
+  }
+
+  .bg-primary-500 {
+    background-color: #1f6fb2 !important;
+  }
+  .bg-primary-600 {
+    background-color: #1f6fb2 !important;
+  }
+  .bg-primary-700 {
+    background-color: #175790 !important;
+  }
+  .bg-primary-800 {
+    background-color: #134b7f !important;
+  }
+  .text-primary-600 {
+    color: #1f6fb2 !important;
+  }
+  .text-primary-700 {
+    color: #175790 !important;
+  }
+  .border-primary-600 {
+    border-color: #1f6fb2 !important;
+  }
+  .bg-primary-50 {
+    background-color: #e8f1fb !important;
+  }
+}
