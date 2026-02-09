@@ -1,16 +1,16 @@
 // Utility functies voor filters, sorting, formatting
-import { Member } from './types';
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import { Member } from "./types";
 
-export function formatDate(date: string | Date, formatStr = 'dd-MM-yyyy') {
+export function formatDate(date: string | Date, formatStr = "dd-MM-yyyy") {
   return format(new Date(date), formatStr);
 }
 
 export function filterMembers(members: Member[], query: string) {
-  return members.filter(m =>
-    (m.firstName + ' ' + m.lastName + ' ' + m.email)
+  return members.filter((m) =>
+    (m.firstName + " " + m.lastName + " " + m.email)
       .toLowerCase()
-      .includes(query.toLowerCase())
+      .includes(query.toLowerCase()),
   );
 }
 

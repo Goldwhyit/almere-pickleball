@@ -55,7 +55,7 @@ export const photosApi = {
       const formData = new FormData();
       formData.append("file", file);
       const token = localStorage.getItem("accessToken");
-      
+
       try {
         const response = await axiosInstance.post(
           "/photos/admin/upload",

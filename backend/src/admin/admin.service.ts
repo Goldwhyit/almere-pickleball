@@ -4,8 +4,8 @@ import {
     NotFoundException,
 } from "@nestjs/common";
 import { AccountType } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcrypt";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class AdminService {

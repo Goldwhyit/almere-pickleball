@@ -125,11 +125,11 @@ export function getButtonClasses(
   variant: "primary" | "secondary" | "accent" | "outline" = "primary",
 ): string {
   const variantClasses = APTheme.buttons[variant];
-  
+
   if (variant === "outline") {
     return `${(variantClasses as any).bg} ${(variantClasses as any).border} ${(variantClasses as any).text} ${(variantClasses as any).hover} font-semibold px-6 py-2 rounded-lg transition`;
   }
-  
+
   return `${(variantClasses as any).bg} ${(variantClasses as any).bgHover || ""} ${(variantClasses as any).text} font-semibold px-6 py-2 rounded-lg transition ${(variantClasses as any).shadow || ""}`;
 }
 

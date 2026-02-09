@@ -1,6 +1,14 @@
 module.exports = {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    screens: {
+      xs: "320px",    // iPhone SE
+      sm: "576px",    // Small tablets
+      md: "768px",    // iPad, tablets
+      lg: "1024px",   // Large tablets, laptops
+      xl: "1280px",   // Desktops
+      "2xl": "1536px", // Large desktops, 4K
+    },
     extend: {
       colors: {
         // Almere Pickleball Brand Colors - Official logo palette
@@ -56,7 +64,41 @@ module.exports = {
         "ap-black": "#111111",
         "ap-light": "#F4F6F8",
       },
-      backgroundImage: {
+      maxWidth: {
+        xs: "20rem",   // 320px
+        sm: "28rem",   // 448px
+        md: "32rem",   // 512px
+        lg: "36rem",   // 576px
+        xl: "42rem",   // 672px
+        "2xl": "48rem", // 768px
+        "3xl": "56rem", // 896px
+        "4xl": "64rem", // 1024px
+        "5xl": "72rem", // 1152px
+        "6xl": "80rem", // 1280px
+        "7xl": "96rem", // 1536px
+        none: "none",
+      },
+      minHeight: {
+        "10": "2.5rem",  // 40px
+        "12": "3rem",    // 48px
+        "14": "3.5rem",  // 56px
+        "16": "4rem",    // 64px
+      },
+      minWidth: {
+        "10": "2.5rem",  // 40px
+        "12": "3rem",    // 48px
+        "14": "3.5rem",  // 56px
+        "16": "4rem",    // 64px
+      },
+      zIndex: {
+        "0": "0",
+        "10": "10",
+        "20": "20",
+        "30": "30",
+        "40": "40",
+        "50": "50",
+        "auto": "auto",
+      },
         // Brand gradients
         "gradient-ap-hero": "linear-gradient(135deg, #1F6FB2 0%, #D62828 100%)",
         "gradient-ap-accent":
@@ -97,5 +139,36 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Touch target utilities (min 44x44px for accessibility)
+    function ({ addUtilities }) {
+      const touchUtilities = {
+        ".btn-touch": {
+          "@apply min-h-[44px] min-w-[44px] flex items-center justify-center": {},
+        },
+        ".icon-touch": {
+          "@apply min-h-[44px] min-w-[44px] flex items-center justify-center": {},
+        },
+        ".container-responsive": {
+          "@apply row-auto mx-auto px-4 sm:px-6 md:px-8 lg:px-10": {},
+        },
+        ".grid-responsive": {
+          "@apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8": {},
+        },
+        ".grid-dashboard": {
+          "@apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6": {},
+        },
+      };
+      addUtilities(touchUtilities);
+    },
+    // Smooth scrolling for all browsers
+    function ({ addUtilities }) {
+      const smoothScroll = {
+        ".scroll-smooth": {
+          "scroll-behavior": "smooth",
+        },
+      };
+      addUtilities(smoothScroll);
+    },
+  ],
 };

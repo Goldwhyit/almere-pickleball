@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 
-const API_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:3000/api";
+const API_URL =
+  (import.meta.env.VITE_API_URL as string) || "http://localhost:3000/api";
 
 interface Member {
   id: string;
@@ -45,12 +46,9 @@ export const AdminMembers = () => {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(
-        `${API_URL}/admin/members`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
+      const { data } = await axios.get(`${API_URL}/admin/members`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       setMembers(data || []);
       setError("");
     } catch (err: any) {
@@ -65,12 +63,9 @@ export const AdminMembers = () => {
     if (!window.confirm("Weet je zeker dat je dit lid wilt verwijderen?"))
       return;
     try {
-      await axios.delete(
-        `${API_URL}/admin/members/${memberId}`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
+      await axios.delete(`${API_URL}/admin/members/${memberId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       setMembers(members.filter((m) => m.id !== memberId));
     } catch (err: any) {
       setError("Fout bij verwijderen lid");
