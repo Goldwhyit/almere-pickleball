@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuthStore } from '../stores/auth';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "../stores/auth";
 
 /**
  * ResponsiveNavigation Component
@@ -20,20 +20,20 @@ export const ResponsiveNavigation: React.FC = () => {
   // Close menu when ESC pressed
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setIsMenuOpen(false);
       }
     };
 
     if (isMenuOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       // Prevent body scroll when menu open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
 
@@ -46,23 +46,38 @@ export const ResponsiveNavigation: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 font-bold text-2xl text-blue-600">
+          <Link
+            to="/"
+            className="flex-shrink-0 font-bold text-2xl text-blue-600"
+          >
             🏓 Almere
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+            <Link
+              to="/"
+              className="text-gray-700 hover:text-blue-600 transition"
+            >
               Home
             </Link>
-            <Link to="/tournaments" className="text-gray-700 hover:text-blue-600 transition">
+            <Link
+              to="/tournaments"
+              className="text-gray-700 hover:text-blue-600 transition"
+            >
               Tournaments
             </Link>
-            <Link to="/memberships" className="text-gray-700 hover:text-blue-600 transition">
+            <Link
+              to="/memberships"
+              className="text-gray-700 hover:text-blue-600 transition"
+            >
               Membership
             </Link>
             {user && (
-              <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 transition">
+              <Link
+                to="/dashboard"
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
                 Dashboard
               </Link>
             )}
@@ -109,7 +124,11 @@ export const ResponsiveNavigation: React.FC = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                d={
+                  isMenuOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
               />
             </svg>
           </button>
@@ -127,7 +146,7 @@ export const ResponsiveNavigation: React.FC = () => {
       {/* Mobile Menu */}
       <div
         className={`fixed top-16 left-0 right-0 bg-white lg:hidden transition-all duration-300 z-40 overflow-y-auto max-h-screen ${
-          isMenuOpen ? 'block' : 'hidden'
+          isMenuOpen ? "block" : "hidden"
         }`}
       >
         <div className="px-4 py-4 space-y-2">

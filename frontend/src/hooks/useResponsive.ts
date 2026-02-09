@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * useResponsive Hook
@@ -7,14 +7,14 @@ import { useState, useEffect, useCallback } from 'react';
  */
 export const useResponsive = () => {
   const [width, setWidth] = useState<number>(() => {
-    if (typeof window === 'undefined') return 1024;
+    if (typeof window === "undefined") return 1024;
     return window.innerWidth;
   });
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return {
@@ -23,7 +23,17 @@ export const useResponsive = () => {
     isDesktop: width >= 1024,
     isLargeDesktop: width >= 1280,
     breakpoint:
-      width < 576 ? 'xs' : width < 768 ? 'sm' : width < 1024 ? 'md' : width < 1280 ? 'lg' : width < 1536 ? 'xl' : '2xl',
+      width < 576
+        ? "xs"
+        : width < 768
+          ? "sm"
+          : width < 1024
+            ? "md"
+            : width < 1280
+              ? "lg"
+              : width < 1536
+                ? "xl"
+                : "2xl",
     width,
   };
 };
@@ -34,15 +44,15 @@ export const useResponsive = () => {
  */
 export const useMediaQuery = (query: string) => {
   const [matches, setMatches] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     return window.matchMedia(query).matches;
   });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(query);
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, [query]);
 
   return matches;
@@ -67,16 +77,19 @@ export const useMobileMenu = () => {
  * Respect user's prefers-reduced-motion setting
  */
 export const useReducedMotion = () => {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(
+    () => {
+      if (typeof window === "undefined") return false;
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    },
+  );
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handler = (e: MediaQueryListEvent) =>
+      setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   return prefersReducedMotion;
@@ -88,15 +101,15 @@ export const useReducedMotion = () => {
  */
 export const useDarkMode = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   return isDarkMode;
@@ -107,21 +120,25 @@ export const useDarkMode = () => {
  * Get device orientation: 'portrait' or 'landscape'
  */
 export const useOrientation = () => {
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>(() => {
-    if (typeof window === 'undefined') return 'portrait';
-    return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-  });
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">(
+    () => {
+      if (typeof window === "undefined") return "portrait";
+      return window.innerHeight > window.innerWidth ? "portrait" : "landscape";
+    },
+  );
 
   useEffect(() => {
     const handleOrientationChange = () => {
-      setOrientation(window.innerHeight > window.innerWidth ? 'portrait' : 'landscape');
+      setOrientation(
+        window.innerHeight > window.innerWidth ? "portrait" : "landscape",
+      );
     };
 
-    window.addEventListener('orientationchange', handleOrientationChange);
-    window.addEventListener('resize', handleOrientationChange);
+    window.addEventListener("orientationchange", handleOrientationChange);
+    window.addEventListener("resize", handleOrientationChange);
     return () => {
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      window.removeEventListener('resize', handleOrientationChange);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("resize", handleOrientationChange);
     };
   }, []);
 
@@ -157,18 +174,18 @@ export const useIntersectionObserver = (ref: React.RefObject<HTMLElement>) => {
  * Returns 'up' or 'down' based on scroll direction
  */
 export const useScrollDirection = () => {
-  const [direction, setDirection] = useState<'up' | 'down'>('down');
+  const [direction, setDirection] = useState<"up" | "down">("down");
   const [lastY, setLastY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      setDirection(currentY > lastY ? 'down' : 'up');
+      setDirection(currentY > lastY ? "down" : "up");
       setLastY(currentY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastY]);
 
   return direction;
@@ -180,10 +197,10 @@ export const useScrollDirection = () => {
  */
 export const useSafeAreaInsets = () => {
   return {
-    top: parseInt(getCSSVariable('--safe-area-inset-top') || '0'),
-    right: parseInt(getCSSVariable('--safe-area-inset-right') || '0'),
-    bottom: parseInt(getCSSVariable('--safe-area-inset-bottom') || '0'),
-    left: parseInt(getCSSVariable('--safe-area-inset-left') || '0'),
+    top: parseInt(getCSSVariable("--safe-area-inset-top") || "0"),
+    right: parseInt(getCSSVariable("--safe-area-inset-right") || "0"),
+    bottom: parseInt(getCSSVariable("--safe-area-inset-bottom") || "0"),
+    left: parseInt(getCSSVariable("--safe-area-inset-left") || "0"),
   };
 };
 
@@ -193,7 +210,7 @@ export const useSafeAreaInsets = () => {
  */
 export const useViewportSize = () => {
   const [size, setSize] = useState<{ width: number; height: number }>(() => {
-    if (typeof window === 'undefined') return { width: 1024, height: 768 };
+    if (typeof window === "undefined") return { width: 1024, height: 768 };
     return { width: window.innerWidth, height: window.innerHeight };
   });
 
@@ -202,8 +219,8 @@ export const useViewportSize = () => {
       setSize({ width: window.innerWidth, height: window.innerHeight });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return size;
@@ -211,6 +228,8 @@ export const useViewportSize = () => {
 
 // Helper function to get CSS variables
 function getCSSVariable(varName: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  if (typeof window === "undefined") return null;
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim();
 }
