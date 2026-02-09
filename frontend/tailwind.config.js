@@ -150,7 +150,7 @@ module.exports = {
           "@apply min-h-[44px] min-w-[44px] flex items-center justify-center": {},
         },
         ".container-responsive": {
-          "@apply row-auto mx-auto px-4 sm:px-6 md:px-8 lg:px-10": {},
+          "@apply mx-auto px-4 sm:px-6 md:px-8 lg:px-10": {},
         },
         ".grid-responsive": {
           "@apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8": {},
