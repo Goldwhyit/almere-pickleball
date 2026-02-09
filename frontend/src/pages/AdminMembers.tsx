@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 
+const API_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:3000/api";
+
 interface Member {
   id: string;
   firstName: string;
@@ -44,7 +46,7 @@ export const AdminMembers = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "http://localhost:3000/api/admin/members",
+        `${API_URL}/admin/members`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
@@ -64,7 +66,7 @@ export const AdminMembers = () => {
       return;
     try {
       await axios.delete(
-        `http://localhost:3000/api/admin/members/${memberId}`,
+        `${API_URL}/admin/members/${memberId}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
@@ -83,7 +85,7 @@ export const AdminMembers = () => {
     if (!window.confirm(confirmMessage)) return;
     try {
       const { data } = await axios.put(
-        `http://localhost:3000/api/admin/members/${member.id}/toggle-admin`,
+        `${API_URL}/admin/members/${member.id}/toggle-admin`,
         {},
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -126,7 +128,7 @@ export const AdminMembers = () => {
     if (!window.confirm(confirmMessage)) return;
     try {
       const { data } = await axios.put(
-        `http://localhost:3000/api/admin/members/${member.id}/membership-status`,
+        `${API_URL}/admin/members/${member.id}/membership-status`,
         { status: nextStatus },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -147,7 +149,7 @@ export const AdminMembers = () => {
     if (member.paymentStatus === nextStatus) return;
     try {
       const { data } = await axios.put(
-        `http://localhost:3000/api/admin/members/${member.id}`,
+        `${API_URL}/admin/members/${member.id}`,
         { paymentStatus: nextStatus },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -170,7 +172,7 @@ export const AdminMembers = () => {
     if (!editingMember) return;
     try {
       await axios.put(
-        `http://localhost:3000/api/admin/members/${editingMember.id}`,
+        `${API_URL}/admin/members/${editingMember.id}`,
         editFormData,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
