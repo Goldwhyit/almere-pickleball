@@ -11,15 +11,12 @@ async function bootstrap() {
   // Zet alle routes onder /api
   app.setGlobalPrefix("api");
 
-  // Enable CORS with multiple origins
-  const frontendUrls = [
-    process.env.FRONTEND_URL || "http://localhost:5173",
-    process.env.PRODUCTION_FRONTEND_URL || "",
-  ].filter(Boolean);
-
+  // Enable CORS
   app.enableCors({
-    origin: frontendUrls,
+    origin: true, // Allow all origins
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
 
   // Enable validation
