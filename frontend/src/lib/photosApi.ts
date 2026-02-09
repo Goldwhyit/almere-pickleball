@@ -54,6 +54,8 @@ export const photosApi = {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      const token = localStorage.getItem("accessToken");
+      
       try {
         const response = await axiosInstance.post(
           "/photos/admin/upload",
@@ -61,6 +63,7 @@ export const photosApi = {
           {
             headers: {
               "Content-Type": "multipart/form-data",
+              ...(token && { Authorization: `Bearer ${token}` }),
             },
           },
         );
@@ -73,6 +76,7 @@ export const photosApi = {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
+                ...(token && { Authorization: `Bearer ${token}` }),
               },
             },
           );
