@@ -12,11 +12,17 @@ import {
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { AdminService } from "./admin.service";
 
-@UseGuards(JwtAuthGuard)
 @Controller("admin")
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  // Public endpoint to create initial admin (for development only)
+  @Post("seed/create-admin")
+  async seedAdmin() {
+    return this.adminService.createAdminUser();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get("status")
   getStatus() {
     return this.adminService.getStatus();

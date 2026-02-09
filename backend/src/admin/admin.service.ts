@@ -5,10 +5,46 @@ import {
 } from "@nestjs/common";
 import { AccountType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
+
+  async createAdminUser() {
+    const email = "admin@almere-pickleball.nl";
+    const password = "Almere2026!";
+    const firstName = "Admin";
+    const lastName = "User";
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { message: "Admin user already exists", email };
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: hash,
+        member: {
+          create: {
+            firstName,
+            lastName,
+            accountType: "ADMIN",
+          },
+        },
+      },
+      include: { member: true },
+    });
+
+    return {
+      message: "Admin user created successfully",
+      email,
+      password,
+      note: "Please change the password after first login",
+    };
+  }
 
   ensureAdmin(user: any) {
     if (!user?.member || user.member.accountType !== "ADMIN") {
