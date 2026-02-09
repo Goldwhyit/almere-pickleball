@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../stores/auth';
 
 /**
  * ResponsiveNavigation Component
@@ -15,7 +15,7 @@ import { useAuthStore } from '../stores/authStore';
  */
 export const ResponsiveNavigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state: any) => state.user);
 
   // Close menu when ESC pressed
   useEffect(() => {
