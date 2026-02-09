@@ -1,6 +1,6 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Main circle -->
-  <circle cx="20" cy="20" r="19" fill="#E8D44D" stroke="#000000" stroke-width="2"/>
+  <circle cx="20" cy="20" r="19" fill="#D62828" stroke="#000000" stroke-width="2"/>
   
   <!-- Holes -->
   <ellipse cx="10" cy="8" rx="2.5" ry="4" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>

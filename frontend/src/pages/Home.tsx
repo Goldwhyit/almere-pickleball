@@ -163,14 +163,11 @@ export const Home = () => {
                   onClick={() => navigate("/trial-signup")}
                   className="px-6 py-2 bg-ap-yellow-500 text-ap-black rounded-lg hover:bg-ap-yellow-600 shadow-ap-md transition font-semibold flex items-center gap-2"
                 >
-                  <span className="relative inline-flex items-center justify-center">
-                    <img 
-                      src="/pickleball.svg" 
-                      alt="Pickleball" 
-                      className="w-5 h-5 relative z-10"
-                    />
-                    <span className="absolute inset-0 bg-ap-red-500 opacity-25 rounded-full blur-[2px]"></span>
-                  </span>
+                  <img 
+                    src="/pickleball.svg" 
+                    alt="Pickleball" 
+                    className="w-5 h-5"
+                  />
                   Proefles
                 </button>
               </>
@@ -191,16 +188,13 @@ export const Home = () => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => navigate("/trial-signup")}
-              className="bg-ap-yellow-500 text-ap-black font-semibold px-8 py-4 rounded-lg hover:bg-ap-yellow-600 text-lg shadow-ap-md transition flex items-center justify-center gap-3 relative"
+              className="bg-ap-yellow-500 text-ap-black font-semibold px-8 py-4 rounded-lg hover:bg-ap-yellow-600 text-lg shadow-ap-md transition flex items-center justify-center gap-3"
             >
-              <span className="relative inline-flex items-center justify-center">
-                <img 
-                  src="/pickleball.svg" 
-                  alt="Pickleball" 
-                  className="w-8 h-8 relative z-10"
-                />
-                <span className="absolute inset-0 bg-ap-red-500 opacity-30 rounded-full blur-sm"></span>
-              </span>
+              <img 
+                src="/pickleball.svg" 
+                alt="Pickleball" 
+                className="w-8 h-8"
+              />
               Start je gratis proefles
             </button>
             <button
@@ -295,16 +289,13 @@ export const Home = () => {
           </ul>
           <button
             onClick={() => navigate("/trial-signup")}
-            className="bg-ap-yellow-500 hover:bg-ap-yellow-600 text-ap-black font-semibold px-8 py-4 rounded-lg text-lg transition shadow-ap-md flex items-center justify-center gap-3 mx-auto relative"
+            className="bg-ap-yellow-500 hover:bg-ap-yellow-600 text-ap-black font-semibold px-8 py-4 rounded-lg text-lg transition shadow-ap-md flex items-center justify-center gap-3 mx-auto"
           >
-            <span className="relative inline-flex items-center justify-center">
-              <img 
-                src="/pickleball.svg" 
-                alt="Pickleball" 
-                className="w-8 h-8 relative z-10"
-              />
-              <span className="absolute inset-0 bg-ap-red-500 opacity-30 rounded-full blur-sm"></span>
-            </span>
+            <img 
+              src="/pickleball.svg" 
+              alt="Pickleball" 
+              className="w-8 h-8"
+            />
             Meld je nu aan
           </button>
           <p className="mt-4 text-ap-slate-600 text-sm">
