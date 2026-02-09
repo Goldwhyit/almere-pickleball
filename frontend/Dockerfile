@@ -21,21 +21,19 @@ COPY src ./src
 # Build for production
 RUN npm run build
 
-# Production stage - serve with simple HTTP server
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Install serve to host static files
-RUN npm install -g serve
+# Production stage - serve with nginx
+FROM nginx:alpine
 
 # Copy built files from builder
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Railway uses PORT environment variable
 ENV PORT=8080
 
 EXPOSE 8080
 
-# Serve the built files on specified port
-CMD ["sh", "-c", "serve -s dist -p $PORT"]
+# Start nginx with dynamic port from Railway
+CMD sh -c "sed -i 's/listen 80;/listen '$PORT';/' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
