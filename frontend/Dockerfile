@@ -14,11 +14,12 @@ COPY tsconfig*.json ./
 COPY vite.config.ts ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
+COPY .env.production ./
 COPY index.html ./
 COPY public ./public
 COPY src ./src
 
-# Build for production
+# Build for production with environment variables
 RUN npm run build
 
 # Production stage - serve with nginx
