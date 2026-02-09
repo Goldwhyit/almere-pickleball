@@ -11,7 +11,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+      secret: process.env.JWT_SECRET || 'almere-pickleball-dev-secret-key-2026',
       signOptions: { expiresIn: process.env.JWT_EXPIRATION || '24h' },
     }),
   ],
