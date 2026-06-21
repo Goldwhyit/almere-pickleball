@@ -6,39 +6,51 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Pickleheads inspired */}
-      <section className="relative bg-gradient-to-r from-primary-500 to-primary-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
+      {/* Hero Section - Clean with logo on white */}
+      <section className="relative bg-white overflow-hidden">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-primary-50 opacity-60"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            {/* Logo */}
+            {/* Logo - Clean on white */}
             <div className="flex justify-center mb-8">
-              <img 
-                src="/logo.png" 
-                alt="Almere Pickleball Logo" 
-                className="h-32 md:h-40 w-auto"
-              />
+              <div className="bg-white rounded-3xl p-6 shadow-xl">
+                <img 
+                  src="/logo.png" 
+                  alt="Almere Pickleball Logo" 
+                  className="h-32 md:h-40 w-auto"
+                />
+              </div>
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              <span className="text-ball-400">Almere Pickleball</span>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-gray-900">
+              Welkom bij <span className="text-primary-600">Almere Pickleball</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-50 max-w-2xl mx-auto font-light">
+            <p className="text-xl md:text-2xl mb-10 text-gray-600 max-w-2xl mx-auto">
               De snelst groeiende racquetsport van Nederland!
             </p>
+            
+            {/* Floating buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {!isAuthenticated ? (
                 <>
                   <Link
-                    to="/register"
-                    className="bg-accent-500 hover:bg-accent-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition shadow-lg"
+                    to="/word-lid"
+                    className="group relative bg-white text-primary-600 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1 border-2 border-primary-500"
                   >
-                    Word Lid
+                    <span className="relative z-10">Word Lid</span>
+                    <div className="absolute inset-0 bg-primary-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </Link>
+                  <Link
+                    to="/proeflessen"
+                    className="bg-accent-500 hover:bg-accent-600 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1"
+                  >
+                    3 Gratis Proeflessen
                   </Link>
                   <Link
                     to="/login"
-                    className="bg-white text-primary-600 hover:bg-gray-100 font-semibold px-8 py-4 rounded-lg text-lg transition shadow-lg"
+                    className="bg-gray-800 hover:bg-gray-900 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1"
                   >
                     Inloggen
                   </Link>
@@ -46,21 +58,17 @@ export default function Home() {
               ) : (
                 <Link
                   to="/dashboard"
-                  className="bg-accent-500 hover:bg-accent-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition shadow-lg"
+                  className="bg-primary-500 hover:bg-primary-600 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1"
                 >
-                  Naar Dashboard
+                  Naar Dashboard →
                 </Link>
               )}
             </div>
           </div>
         </div>
 
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
-          </svg>
-        </div>
+        {/* Decorative wave */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent"></div>
       </section>
 
       {/* Features Section */}
@@ -158,36 +166,28 @@ export default function Home() {
             </div>
 
             <div className="bg-white p-8 rounded-2xl shadow-xl">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Lidmaatschap</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Word Lid!</h3>
+              <p className="text-gray-600 mb-6">
+                Onbeperkt spelen, deelname aan toernooien, trainingen en meer. 
+                Kies het lidmaatschap dat bij jou past.
+              </p>
               <div className="space-y-4">
-                <div className="border-b pb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-gray-900">Volwassenen</span>
-                    <span className="text-2xl font-bold text-primary-600">€350</span>
-                  </div>
-                  <p className="text-sm text-gray-600">per jaar</p>
-                </div>
-                <div className="border-b pb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-gray-900">Jongeren (&lt;18)</span>
-                    <span className="text-2xl font-bold text-primary-600">€200</span>
-                  </div>
-                  <p className="text-sm text-gray-600">per jaar</p>
-                </div>
-                <div className="pb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-gray-900">Gezin</span>
-                    <span className="text-2xl font-bold text-primary-600">€800</span>
-                  </div>
-                  <p className="text-sm text-gray-600">per jaar</p>
-                </div>
+                <Link
+                  to="/word-lid"
+                  className="block w-full bg-primary-500 hover:bg-primary-600 text-white text-center font-bold py-4 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  Meld je aan als Lid →
+                </Link>
+                <Link
+                  to="/proeflessen"
+                  className="block w-full bg-accent-500 hover:bg-accent-600 text-white text-center font-bold py-4 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  3 Gratis Proeflessen →
+                </Link>
               </div>
-              <Link
-                to="/register"
-                className="block w-full bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold py-3 px-4 rounded-lg transition mt-6"
-              >
-                Word Nu Lid
-              </Link>
+              <p className="text-sm text-gray-500 mt-4 text-center">
+                Niet zeker? Probeer eerst 3 gratis lessen!
+              </p>
             </div>
           </div>
         </div>
@@ -200,14 +200,22 @@ export default function Home() {
             Klaar om te beginnen?
           </h2>
           <p className="text-xl mb-8 text-primary-50">
-            Kom langs voor een gratis proefles!
+            Word lid of probeer eerst 3 gratis lessen!
           </p>
-          <Link
-            to="/register"
-            className="inline-block bg-white text-primary-600 hover:bg-gray-100 font-semibold px-8 py-4 rounded-lg text-lg transition shadow-lg"
-          >
-            Meld je aan →
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/word-lid"
+              className="inline-block bg-white text-primary-600 hover:bg-gray-50 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl hover:-translate-y-1"
+            >
+              Word Lid →
+            </Link>
+            <Link
+              to="/proeflessen"
+              className="inline-block bg-accent-500 hover:bg-accent-600 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl hover:-translate-y-1"
+            >
+              3 Gratis Proeflessen →
+            </Link>
+          </div>
         </div>
       </section>
     </div>
