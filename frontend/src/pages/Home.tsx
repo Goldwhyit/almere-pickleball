@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Home() {
-  const { isAuthenticated, user } = useAuthStore();
+const { isAuthenticated } = useAuthStore();
 
   return (
     <div className="min-h-screen bg-white">
