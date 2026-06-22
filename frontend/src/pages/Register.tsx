@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authAPI } from '../lib/api';
+import { useRef, useEffect } from 'react';
+import { authAPI } from '../lib/authApi';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Register() {
-  const [formData, setFormData] = useState({
+  const [formData, _setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
@@ -13,34 +14,39 @@ export default function Register() {
     phone: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [showWelcome, setShowWelcome] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const firstNameRef = useRef<HTMLInputElement>(null);
+
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  useEffect(() => {
+    firstNameRef.current?.focus();
+  }, []);
+
+  const validateEmail = (val: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val);
+  const isEmailValid = validateEmail(formData.email);
+  const isPasswordValid = formData.password.length >= 8;
+  const isConfirmValid = formData.password === formData.confirmPassword && formData.confirmPassword.length >= 8;
+  const isFirstNameValid = formData.firstName.trim().length > 0;
+  const isLastNameValid = formData.lastName.trim().length > 0;
+  const isFormValid = isEmailValid && isPasswordValid && isConfirmValid && isFirstNameValid && isLastNameValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Wachtwoorden komen niet overeen');
+    if (!isFormValid) {
+      if (!isFirstNameValid) firstNameRef.current?.focus();
+      else if (!isLastNameValid) passwordRef.current?.focus();
+      else if (!isEmailValid) emailRef.current?.focus();
+      else if (!isPasswordValid) passwordRef.current?.focus();
       return;
     }
-
-    if (formData.password.length < 8) {
-      setError('Wachtwoord moet minimaal 8 karakters zijn');
-      return;
-    }
-
     setIsLoading(true);
-
     try {
       const data = await authAPI.register({
         email: formData.email,
@@ -49,15 +55,19 @@ export default function Register() {
         lastName: formData.lastName,
         phone: formData.phone || undefined,
       });
-
-      login(data.user, {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-      });
-      
-      navigate('/dashboard');
+      setSuccess(true);
+      setShowWelcome(true);
+      setTimeout(() => {
+        setShowWelcome(false);
+        login(data.user, {
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        });
+        navigate('/dashboard');
+      }, 1200);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registratie mislukt. Probeer opnieuw.');
+      passwordRef.current?.focus();
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +75,12 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center px-4 py-12">
+      {/* Toasts */}
+      {showWelcome && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-primary-200 text-primary-700 px-6 py-3 rounded-lg shadow-lg animate-fade-in">
+          Welkom bij Almere Pickleball!
+        </div>
+      )}
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -83,106 +99,34 @@ export default function Register() {
               </div>
             )}
 
+            {/* ...existing code... */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Voornaam
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Achternaam
-                </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
+              {/* ...existing code... */}
             </div>
-
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              {/* ...existing code... */}
             </div>
-
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Telefoon <span className="text-gray-400">(optioneel)</span>
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="+31612345678"
-              />
+              {/* ...existing code... */}
             </div>
-
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Wachtwoord
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Min. 8 karakters"
-              />
+              {/* ...existing code... */}
             </div>
-
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Bevestig wachtwoord
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              {/* ...existing code... */}
             </div>
-
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid}
               className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Registreren...' : 'Registreren'}
             </button>
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mt-4 text-center animate-fade-in">
+                ✅ Je registratie is gelukt! Je wordt doorgestuurd...
+              </div>
+            )}
           </form>
 
           <div className="mt-6 text-center">

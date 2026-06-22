@@ -32,7 +32,7 @@ Een **volledig functionele basis** voor de Almere Pickleball clubwebsite met com
 
 ---
 
-## 🎯 Status: MVP Foundation (Phase 1)
+## 🎯 Status: MVP Foundation (Phase 1 + Trial & Membership)
 
 ### ✅ Wat werkt nu al:
 
@@ -42,6 +42,8 @@ Een **volledig functionele basis** voor de Almere Pickleball clubwebsite met com
 - User & Member entities
 - Tournament entities (structure)
 - Match entities (structure)
+- **🆕 Trial Lessons Module** (CRUD endpoints werkend)
+- **🆕 Memberships Module** (CRUD endpoints werkend)
 - Prisma migrations
 - Seed data
 - API documentation (Swagger)
@@ -51,8 +53,13 @@ Een **volledig functionele basis** voor de Almere Pickleball clubwebsite met com
 - Build configuration
 - Styling foundation (Tailwind + brand colors)
 - Basic routing structure
+- **🆕 Home page** (volledige UX/copy rewrite)
+- **🆕 Proeflessen pagina** (3-stap form, modals, API integratie)
+- **🆕 WordLid pagina** (membership selectie, 3-stap form, API integratie)
+- **🆕 Blauwe header** (alle pagina's, witte logo kader)
+- **🆕 API client** (trial lessons & memberships endpoints)
 - TypeScript configuration
-- Responsive breakpoints
+- Responsive design (mobile/tablet/desktop getest)
 
 ### 🚧 Wat moet nog gebouwd worden:
 
@@ -127,12 +134,14 @@ Een **volledig functionele basis** voor de Almere Pickleball clubwebsite met com
 almere-pickleball/
 ├── backend/                    # NestJS API
 │   ├── prisma/
-│   │   ├── schema.prisma      ✅ Complete database schema
+│   │   ├── schema.prisma      ✅ Complete database schema (+ TrialLesson, MembershipApplication)
 │   │   └── seed.ts            ✅ Test data
 │   ├── src/
 │   │   ├── auth/              ✅ Authentication (complete)
 │   │   ├── common/            ✅ Guards, decorators
 │   │   ├── prisma/            ✅ Database service
+│   │   ├── trial-lessons/     ✅ Trial Lessons Module (COMPLETE)
+│   │   ├── memberships/       ✅ Memberships Module (COMPLETE)
 │   │   ├── tournaments/       🚧 To be built
 │   │   ├── matches/           🚧 To be built
 │   │   ├── payments/          🚧 To be built
@@ -143,10 +152,17 @@ almere-pickleball/
 │
 ├── frontend/                   # React App
 │   ├── src/
-│   │   ├── components/        🚧 To be built
-│   │   ├── pages/             🚧 To be built
-│   │   ├── lib/               🚧 API client to be built
-│   │   ├── stores/            🚧 State management to be built
+│   │   ├── components/        ✅ Modal (enhanced), ReviewsCarousel, DUPRSection, Spelregels, FloatingWhatsApp
+│   │   ├── pages/
+│   │   │   ├── Home.tsx       ✅ Complete (Dutch content, UX optimized)
+│   │   │   ├── Proeflessen.tsx ✅ Complete (3-step form, API integrated)
+│   │   │   ├── WordLid.tsx    ✅ Complete (3-step form, membership selection)
+│   │   │   ├── Login.tsx      🚧 To be built
+│   │   │   ├── Register.tsx   🚧 To be built
+│   │   │   └── Dashboard.tsx  🚧 To be built
+│   │   ├── lib/
+│   │   │   └── api.ts         ✅ API client (auth, trial-lessons, memberships)
+│   │   ├── stores/            ✅ Auth store
 │   │   ├── index.css          ✅ Tailwind setup
 │   │   └── main.tsx           ✅ Entry point
 │   ├── package.json           ✅ All dependencies
@@ -344,7 +360,15 @@ Password: password123
 
 ## 🎯 Next Immediate Steps
 
-**Priority 1: Build Tournament Module**
+**Priority 1: Authentication Pages** ⭐
+```bash
+cd frontend/src/pages
+# Create Login.tsx with backend integration
+# Create Register.tsx with backend integration
+# Create Dashboard.tsx for member area
+```
+
+**Priority 2: Build Tournament Module**
 ```bash
 cd backend/src
 nest g module tournaments
@@ -352,19 +376,11 @@ nest g service tournaments
 nest g controller tournaments
 ```
 
-**Priority 2: Build Auth Pages**
+**Priority 3: Dashboard & Member Pages**
 ```bash
-cd frontend/src/pages
-# Create Login.tsx
-# Create Register.tsx
-# Setup routing
-```
-
-**Priority 3: API Client**
-```bash
-cd frontend/src/lib
-# Create axios instance
-# Create API functions
+# Update routing
+# Add protected routes
+# Add member profile pages
 ```
 
 ---
@@ -437,6 +453,45 @@ De architectuur is schaalbaar, de database is compleet ontworpen, en alle tools 
 
 ---
 
-**Version:** 1.0
-**Date:** January 2026
-**Created by:** Senior Full Stack Developer
+---
+
+## 📝 CHANGELOG
+
+### v1.1 (January 15, 2026) - Trial & Membership Integration 🆕
+
+**Backend Enhancements:**
+- ✅ Added TrialLesson model & module (POST /api/trial-lessons)
+- ✅ Added MembershipApplication model & module (POST /api/memberships)
+- ✅ Database migration created and applied
+- ✅ Services with full CRUD operations
+- ✅ DTOs with validation
+- ✅ Prisma relations configured
+
+**Frontend Build-Out:**
+- ✅ Home page - Complete UX/copy rewrite (Dutch, beginner-focused)
+- ✅ Proeflessen page - 3-step form with validation
+- ✅ WordLid page - Membership selection (4 types) + 3-step form
+- ✅ Modal component - Enhanced with responsive sizing
+- ✅ Header - Blue (#3B82F6) with white logo frame on all pages
+- ✅ Forms - Consistent styling and validation
+- ✅ API Integration - Frontend now calls backend endpoints
+
+**UX/Design Improvements:**
+- ✅ Responsive design verified across all devices
+- ✅ Consistent color scheme (primary-600 blue)
+- ✅ Terms & Privacy modals for both trial and membership
+- ✅ Success states with next steps
+- ✅ Form step progression with validation
+- ✅ Newsletter checkbox (optional)
+
+**DevOps:**
+- ✅ CORS configured for frontend-backend communication
+- ✅ Environment variables set up (.env)
+- ✅ Database connection working
+- ✅ Both servers running and communicating
+
+**Status:** Core conversion funnel (Trial → Membership) now fully operational!
+
+### v1.0 (Previous) - Foundation
+
+See previous entries in PROJECT_SUMMARY.md

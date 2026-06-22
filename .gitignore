@@ -36,3 +36,7 @@ yarn-error.log*
 
 # Prisma
 **/prisma/migrations/
+database.sqlite
+backend.log
+frontend/dist/
+*.timestamp-*.mjs

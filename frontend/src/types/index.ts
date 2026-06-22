@@ -29,6 +29,20 @@ export interface Tournament {
   name: string;
   type: 'SINGLES' | 'DOUBLES' | 'MIXED';
   format: 'ROUND_ROBIN' | 'SINGLE_ELIMINATION' | 'DOUBLE_ELIMINATION' | 'LEAGUE' | 'LADDER';
+  doublesFormat?:
+    | 'CLASSIC_DOUBLES'
+    | 'MIXED_DOUBLES'
+    | 'AMERICANO_DOUBLES'
+    | 'MEXICANO_DOUBLES'
+    | 'ROUND_ROBIN_DOUBLES'
+    | 'KING_OF_THE_COURT_DOUBLES'
+    | 'FAST4_DOUBLES'
+    | 'TIEBREAK_DOUBLES';
+  formatConfig?: any;
+  scheduleConfig?: any;
+  schedule?: any;
+  totalTimeMinutes?: number;
+  swapDuration?: number;
   status: 'DRAFT' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   startDate: string;
   endDate: string;

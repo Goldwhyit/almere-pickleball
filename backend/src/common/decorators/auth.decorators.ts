@@ -1,17 +1,13 @@
-import { SetMetadata } from '@nestjs/common';
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+import { SetMetadata, createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-// Public route decorator
-export const Public = () => SetMetadata('isPublic', true);
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-// Roles decorator
-export const Roles = (...roles: UserRole[]) => SetMetadata('roles', roles);
-
-// Current user decorator
 export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.user;
   },
 );
+
+export type UserRole = 'MEMBER' | 'ORGANIZER' | 'ADMIN';
