@@ -1,6 +1,18 @@
+<!-- Navigation: Use INDEX.md for complete documentation -->
+[← Back to Index](INDEX.md) | [Quick Start](QUICK_START.md) | [Database Setup](DATABASE_SETUP.md) | [Setup Checklist](SETUP_CHECKLIST.md)
+
+---
+
 # Almere Pickleball - Installatie & Setup Guide
 
 Complete handleiding voor het opzetten van de Almere Pickleball platform (Backend + Frontend).
+
+## 📚 Table of Contents
+- [Overzicht](#overzicht)
+- [Vereisten](#vereisten)
+- [Stap-voor-stap Installatie](#stap-voor-stap-installatie)
+
+---
 
 ## 📋 Overzicht
 
@@ -469,6 +481,30 @@ npm run format
 1. Check de README's in backend/ en frontend/ folders
 2. Bekijk de Prisma schema: `backend/prisma/schema.prisma`
 3. Test API endpoints via Swagger UI: http://localhost:3000/api/docs
+4. Consult [QUICK_FIX.md](QUICK_FIX.md) for common issues
+
+---
+
+## 🔗 Related Documentation
+
+**Setup & Installation:**
+- [Complete Documentation Index](INDEX.md)
+- [Quick Start (5 min)](QUICK_START.md)
+- [Setup Checklist](SETUP_CHECKLIST.md)
+- [Database Setup](DATABASE_SETUP.md)
+
+**Database:**
+- [Database Structure](DATABASE_STRUCTURE.md)
+- [Database Commands](DATABASE_COMMANDS.md)
+- [Prisma Documentation](backend/prisma/README.md)
+
+**Features:**
+- [Trial System](README_TRIAL_SYSTEM.md)
+- [Responsive Design](README_RESPONSIVE.md)
+
+**Troubleshooting:**
+- [Quick Fixes](QUICK_FIX.md)
+- [Database Restore](RESTORE_DATABASE.md)
 
 ---
 
@@ -479,3 +515,5 @@ MIT License - Vrij te gebruiken voor commerciële en niet-commerciële doeleinde
 ---
 
 **Succes met development! 🏓**
+
+*Last Updated: 2026-06-24*

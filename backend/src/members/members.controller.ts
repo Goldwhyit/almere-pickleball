@@ -12,7 +12,7 @@ export class MembersController {
   constructor(private prisma: PrismaService, private mailService: MailService) {}
 
   @Get('profile')
-  async getProfile(@Request() req) {
+  async getProfile(@Request() req: any) {
     const userId = req.user?.userId || req.user?.id;
     if (!userId) throw new Error('Geen userId in JWT');
     return this.prisma.member.findUnique({
@@ -31,7 +31,7 @@ export class MembersController {
   }
 
   @Put('profile')
-  async updateProfile(@Request() req, @Body() data: any) {
+  async updateProfile(@Request() req: any, @Body() data: any) {
     const userId = req.user?.userId || req.user?.id;
     if (!userId) throw new Error('Geen userId in JWT');
     return this.prisma.member.update({
@@ -47,14 +47,14 @@ export class MembersController {
   }
 
   @Get('stats')
-  async getStats(@Request() req) {
+  async getStats(@Request() req: any) {
     const userId = req.user?.userId || req.user?.id;
     if (!userId) throw new Error('Geen userId in JWT');
     return { matchesPlayed: 0, winPercentage: 0, duprRating: 3.0, clubRanking: 0 };
   }
 
   @Get('dashboard')
-  async getDashboard(@Request() req) {
+  async getDashboard(@Request() req: any) {
     const userId = req.user?.userId || req.user?.id;
     if (!userId) throw new Error('Geen userId in JWT');
     return { matches: [], registeredTournaments: [], clubUpdates: [] };

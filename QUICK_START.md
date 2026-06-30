@@ -1,4 +1,20 @@
+<!-- Navigation: Use INDEX.md for complete documentation -->
+[← Back to Index](INDEX.md) | [Setup Checklist](SETUP_CHECKLIST.md) | [Full Guide](INSTALLATION.md) | [Database Setup](DATABASE_SETUP.md)
+
+---
+
 # 🚀 Trial System - Quick Start Guide
+
+## 📚 Table of Contents
+- [Current Status](#current-status)
+- [What You Can Do Now](#what-you-can-do-right-now)
+- [When Frontend is Ready](#when-frontend-is-ready)
+- [Database Inspection](#database-inspection)
+- [Files to Review](#files-to-review)
+- [Troubleshooting](#troubleshooting)
+- [Verification Checklist](#verification-checklist)
+
+---
 
 ## Current Status
 
@@ -281,6 +297,28 @@ The trial system is **90% complete and fully functional**:
 **Your next step:** Reinstall frontend when network is stable, then you have a fully working trial lesson system! 🎉
 
 ---
+
+## 🔗 Related Documentation
+
+**Getting Started:**
+- [Complete Documentation Index](INDEX.md)
+- [Setup Checklist](SETUP_CHECKLIST.md)
+- [Database Setup](DATABASE_SETUP.md)
+- [Installation Guide](INSTALLATION.md)
+
+**Trial System:**
+- [Trial System Overview](README_TRIAL_SYSTEM.md)
+- [Trial Testing Guide](TRIAL_TESTING_GUIDE.md)
+- [Trial System Implementation](TRIAL_SYSTEM_IMPLEMENTATION.md)
+- [Trial System Index](TRIAL_SYSTEM_INDEX.md)
+
+**Database & Commands:**
+- [Database Commands](DATABASE_COMMANDS.md)
+- [Database Structure](DATABASE_STRUCTURE.md)
+
+---
+
+**Last Updated:** 2026-06-24
 
 **Backend Status:** 🟢 RUNNING  
 **Frontend Status:** 🟡 READY  
