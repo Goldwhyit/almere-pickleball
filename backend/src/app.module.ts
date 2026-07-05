@@ -9,6 +9,7 @@ import { PlayDaysModule } from './play-days/play-days.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { TrialLessonsModule } from './trial-lessons/trial-lessons.module';
+import { MembershipsModule } from './memberships/memberships.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TrialLessonsModule } from './trial-lessons/trial-lessons.module';
     PlayDaysModule,
     TournamentsModule,
     TrialLessonsModule,
+    MembershipsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
