@@ -20,6 +20,8 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  accessToken: string | null;
+  refreshToken: string | null;
   login: (user: User, tokens: { accessToken: string; refreshToken: string }) => void;
   logout: () => void;
   setUser: (user: User) => void;
@@ -37,6 +39,8 @@ const normalizeUser = (user: User | null): User | null => {
 export const useAuthStore = create<AuthState>((set) => {
   // Try to restore user from localStorage
   let storedUser: User | null = null;
+  let storedAccessToken: string | null = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  let storedRefreshToken: string | null = localStorage.getItem('refreshToken');
   try {
     const userStr = localStorage.getItem('user');
     if (userStr) storedUser = normalizeUser(JSON.parse(userStr));
@@ -44,8 +48,10 @@ export const useAuthStore = create<AuthState>((set) => {
 
   return {
     user: storedUser,
-    isAuthenticated: !!localStorage.getItem('accessToken') || !!localStorage.getItem('token'),
+    isAuthenticated: !!storedAccessToken,
     isLoading: false,
+    accessToken: storedAccessToken,
+    refreshToken: storedRefreshToken,
 
     login: (user, tokens) => {
       const normalizedUser = normalizeUser(user);
@@ -53,7 +59,12 @@ export const useAuthStore = create<AuthState>((set) => {
       localStorage.setItem('refreshToken', tokens.refreshToken);
       localStorage.setItem('token', tokens.accessToken);
       localStorage.setItem('user', JSON.stringify(normalizedUser));
-      set({ user: normalizedUser, isAuthenticated: true });
+      set({
+        user: normalizedUser,
+        isAuthenticated: true,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      });
     },
 
     logout: () => {
@@ -61,7 +72,7 @@ export const useAuthStore = create<AuthState>((set) => {
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, accessToken: null, refreshToken: null });
     },
 
     setUser: (user) => {

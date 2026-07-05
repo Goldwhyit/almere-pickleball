@@ -21,6 +21,8 @@ const MEMBERSHIP_LABELS: Record<string, string> = {
   PER_SESSION: 'Per sessie'
 };
 
+const API_BASE_URL = ((import.meta.env.VITE_API_URL as string | undefined)?.trim() || (typeof window !== 'undefined' ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '');
+
 export default function MembershipPaymentModal({ 
   isOpen, 
   onClose, 
@@ -45,7 +47,7 @@ export default function MembershipPaymentModal({
       
       // Complete payment and convert to member
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/trial-lessons/complete-payment`,
+        `${API_BASE_URL}/trial-lessons/complete-payment`,
         { paymentId },
         {
           headers: { Authorization: `Bearer ${token}` }

@@ -4,13 +4,14 @@ import { useAuthStore } from '../stores/authStore';
 
 const NextMatch: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [match, setMatch] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch if user is authenticated
-    if (!isAuthenticated) {
+    // Only fetch if user is authenticated and a token is available
+    if (!isAuthenticated || !accessToken) {
       setLoading(false);
       return;
     }
@@ -20,11 +21,16 @@ const NextMatch: React.FC = () => {
         setMatch(res.data);
         setLoading(false);
       })
-      .catch(() => {
-        setError('Kan volgende match niet ophalen');
+      .catch((err) => {
+        if (err?.response?.status === 401 || err?.response?.status === 404) {
+          setMatch(null);
+          setError(null);
+        } else {
+          setError('Kan volgende match niet ophalen');
+        }
         setLoading(false);
       });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, accessToken]);
 
   if (!isAuthenticated) return null;
   if (loading) return <div>Loading...</div>;

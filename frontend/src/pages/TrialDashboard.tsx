@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function TrialDashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, accessToken } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [trialStatus, setTrialStatus] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'book-dates' | 'lessons'>(
@@ -20,7 +20,7 @@ export default function TrialDashboard() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackReason, setFeedbackReason] = useState('');
 
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
+  const token = accessToken || localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
 
   useEffect(() => {
     if (!user || !token) {
@@ -34,7 +34,7 @@ export default function TrialDashboard() {
     }
 
     fetchTrialStatus();
-  }, [user, token, navigate]);
+  }, [user, token, navigate, logout]);
 
   const fetchTrialStatus = async () => {
     try {
