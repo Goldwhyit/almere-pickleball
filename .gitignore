@@ -40,3 +40,5 @@ database.sqlite
 backend.log
 frontend/dist/
 *.timestamp-*.mjs
+.vercel
+.env*
