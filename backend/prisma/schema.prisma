@@ -1,0 +1,414 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Authentication & User Management
+// ============================================
+
+model User {
+  id                    String     @id @default(cuid())
+  email                 String     @unique
+  password              String
+  role                  UserRole   @default(MEMBER)
+  isActive              Boolean    @default(true)
+  emailVerified         Boolean    @default(false)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  
+  // Relations
+  member                Member?
+  passwordResetTokens   PasswordResetToken[]
+  refreshTokens         RefreshToken[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  ORGANIZER
+  MEMBER
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// Members & Membership
+// ============================================
+
+model Member {
+  id                        String          @id @default(cuid())
+  userId                    String          @unique
+  firstName                 String
+  lastName                  String
+  phone                     String?
+  dateOfBirth               DateTime?
+  duprRating                Float?          @default(0)
+  duprId                    String?
+  accountType               AccountType     @default(MEMBER)
+  membershipStatus          MembershipStatus @default(INACTIVE)
+  membershipPlan            MembershipPlan  @default(PER_SESSION)
+  punchCardRemaining        Int             @default(0)
+  punchCardExpiryDate       DateTime?
+  totalPlaydays             Int             @default(0)
+  totalMatches              Int             @default(0)
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  
+  // Trial-specific fields
+  trialStartDate            DateTime?
+  trialEndDate              DateTime?
+  trialLessonsBooked        Int             @default(0)
+  trialLessonsCompleted     Int             @default(0)
+  trialStatus               TrialStatus     @default(PENDING)
+  
+  // Relations
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memberships               Membership[]
+  playDayRegistrations      PlayDayRegistration[]
+  trialLessons              TrialLesson[]
+  matchParticipations       MatchParticipation[]
+  tournamentParticipations  TournamentParticipation[]
+  payments                  Payment[]
+
+  @@map("members")
+}
+
+enum AccountType {
+  MEMBER
+  TRIAL
+  TRIAL_EXPIRED
+  ADMIN
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum MembershipPlan {
+  PER_SESSION
+  PUNCH_CARD
+  MONTHLY
+  YEARLY
+  YEARLY_UPFRONT
+}
+
+enum TrialStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  DECLINED
+  EXPIRED
+}
+
+// ============================================
+// Membership & Payments
+// ============================================
+
+model Membership {
+  id            String          @id @default(cuid())
+  memberId      String
+  plan          MembershipPlan
+  startDate     DateTime        @default(now())
+  endDate       DateTime?
+  status        MembershipStatus @default(ACTIVE)
+  autoRenew     Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  member        Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  payments      Payment[]
+
+  @@map("memberships")
+}
+
+model Payment {
+  id            String          @id @default(cuid())
+  memberId      String
+  membershipId  String?
+  amount        Float
+  currency      String          @default("EUR")
+  paymentMethod PaymentMethod   @default(TRANSFER)
+  status        PaymentStatus   @default(PENDING)
+  transactionId String?         @unique
+  description   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  member        Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  membership    Membership?     @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  TRANSFER
+  CARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+// ============================================
+// Courts & Facilities
+// ============================================
+
+model Court {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  location    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  playDays    PlayDay[]
+  matches     Match[]
+
+  @@map("courts")
+}
+
+// ============================================
+// Play Days & Matches
+// ============================================
+
+model PlayDay {
+  id              String          @id @default(cuid())
+  courtId         String
+  scheduledDate   DateTime
+  startTime       String          @default("19:00")
+  endTime         String          @default("21:00")
+  maxPlayers      Int             @default(4)
+  playerCount     Int             @default(0)
+  price           Float           @default(0)
+  status          PlayDayStatus   @default(SCHEDULED)
+  description     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  court           Court           @relation(fields: [courtId], references: [id], onDelete: Restrict)
+  registrations   PlayDayRegistration[]
+  matches         Match[]
+
+  @@map("play_days")
+  @@index([courtId, scheduledDate])
+}
+
+enum PlayDayStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model PlayDayRegistration {
+  id          String    @id @default(cuid())
+  playDayId   String
+  memberId    String
+  status      RegStatus @default(REGISTERED)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  playDay     PlayDay   @relation(fields: [playDayId], references: [id], onDelete: Cascade)
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([playDayId, memberId])
+  @@map("play_day_registrations")
+}
+
+enum RegStatus {
+  REGISTERED
+  ATTENDED
+  CANCELLED
+  NO_SHOW
+}
+
+model Match {
+  id              String    @id @default(cuid())
+  playDayId       String
+  courtId         String
+  matchNumber     Int
+  team1Score      Int?
+  team2Score      Int?
+  status          MatchStatus @default(SCHEDULED)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  playDay         PlayDay   @relation(fields: [playDayId], references: [id], onDelete: Cascade)
+  court           Court     @relation(fields: [courtId], references: [id], onDelete: Restrict)
+  participations  MatchParticipation[]
+
+  @@unique([playDayId, matchNumber])
+  @@map("matches")
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model MatchParticipation {
+  id        String  @id @default(cuid())
+  matchId   String
+  memberId  String
+  team      Int     @default(1) // 1 or 2
+  
+  match     Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  member    Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, memberId])
+  @@map("match_participations")
+}
+
+// ============================================
+// Tournaments
+// ============================================
+
+model Tournament {
+  id                String          @id @default(cuid())
+  name              String
+  description       String?
+  format            TournamentFormat @default(ROUND_ROBIN)
+  status            TournamentStatus @default(DRAFT)
+  startDate         DateTime
+  endDate           DateTime
+  location          String
+  maxParticipants   Int             @default(16)
+  entryFee          Float           @default(0)
+  createdBy         String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // Relations
+  participations    TournamentParticipation[]
+  matches           TournamentMatch[]
+
+  @@map("tournaments")
+}
+
+enum TournamentFormat {
+  ROUND_ROBIN
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  GROUP_STAGE
+}
+
+enum TournamentStatus {
+  DRAFT
+  PUBLISHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model TournamentParticipation {
+  id          String  @id @default(cuid())
+  tournamentId String
+  memberId    String
+  teamName    String?
+  createdAt   DateTime @default(now())
+  
+  tournament  Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, memberId])
+  @@map("tournament_participations")
+}
+
+model TournamentMatch {
+  id          String    @id @default(cuid())
+  tournamentId String
+  matchNumber Int
+  team1       String
+  team2       String
+  team1Score  Int?
+  team2Score  Int?
+  status      MatchStatus @default(SCHEDULED)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  tournament  Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, matchNumber])
+  @@map("tournament_matches")
+}
+
+// ============================================
+// Trial Lessons
+// ============================================
+
+model TrialLesson {
+  id              String      @id @default(cuid())
+  memberId        String
+  scheduledDate   DateTime
+  completed       Boolean     @default(false)
+  feedback        String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  member          Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("trial_lessons")
+  @@index([memberId, scheduledDate])
+}
+
+// ============================================
+// Club Updates & News
+// ============================================
+
+model ClubUpdate {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  category    String?
+  imageUrl    String?
+  published   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("club_updates")
+}

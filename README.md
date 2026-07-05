@@ -1,6 +1,22 @@
+<!-- Navigation: Use INDEX.md for complete documentation map -->
+[← Back to Documentation Index](INDEX.md) | [Quick Start](QUICK_START.md) | [Setup Checklist](SETUP_CHECKLIST.md)
+
+---
+
 # Almere Pickleball - Club Website & Competition Platform
 
 Een moderne, responsive clubwebsite met geïntegreerde competitie- en toernooimodule voor pickleballclubs.
+
+## 📚 Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Development Setup](#development-setup)
+- [Documentation](#documentation)
+- [Testing](#testing)
+- [Quick Links](#quick-links)
+
+---
 
 ## 🏓 Features
 
@@ -82,9 +98,15 @@ npm run dev
 
 ## 📚 Documentation
 
+- [Complete Documentation Index](INDEX.md) ← **Start here**
+- [Quick Start Guide](QUICK_START.md) - Setup in 5 minutes
+- [Setup Checklist](SETUP_CHECKLIST.md) - Step-by-step
 - [API Documentation](./backend/README.md)
 - [Frontend Guide](./frontend/README.md)
-- [Database Schema](./backend/prisma/schema.prisma)
+- [Database Schema](./backend/prisma/README.md)
+- [Database Setup](DATABASE_SETUP.md)
+- [Trial System](README_TRIAL_SYSTEM.md)
+- [Responsive Design](README_RESPONSIVE.md)
 
 ## 🧪 Testing
 
@@ -98,6 +120,35 @@ npm run test:e2e
 cd frontend
 npm run test
 ```
+
+## 🔗 Quick Links
+
+**Getting Started:**
+- 📖 [Full Documentation Index](INDEX.md)
+- ⚡ [Quick Start (5 min)](QUICK_START.md)
+- ✅ [Setup Checklist](SETUP_CHECKLIST.md)
+- 🔧 [Installation Guide](INSTALLATION.md)
+
+**Database & Backend:**
+- 🗄️ [Database Setup](DATABASE_SETUP.md)
+- 📊 [Database Structure](DATABASE_STRUCTURE.md)
+- 🔧 [Database Commands](DATABASE_COMMANDS.md)
+- 📚 [Prisma Documentation](backend/prisma/README.md)
+
+**Features:**
+- 🎓 [Trial System](README_TRIAL_SYSTEM.md)
+- 📱 [Responsive Design](README_RESPONSIVE.md)
+- 🏆 [Tournament Formats](TOURNAMENT_FORMATS.md)
+
+**Maintenance:**
+- 🐛 [Quick Fixes](QUICK_FIX.md)
+- 🔄 [Backup & Restore](RESTORE_DATABASE.md)
+- 📝 [Changelog](CHANGELOG.md)
+
+---
+
+**Last Updated:** 2026-06-24  
+**Documentation:** [See INDEX.md](INDEX.md) for complete structure
 
 ## 🚢 Deployment
 
