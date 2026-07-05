@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import WordLid from './pages/WordLid';
 import TrialSignup from './pages/TrialSignup';
 import TrialDashboard from './pages/TrialDashboard';
+import Onboarding from './pages/Onboarding';
 import Tournaments from './pages/tournaments/Tournaments';
 import TournamentDetail from './pages/tournaments/TournamentDetail';
 import OrganizerDashboard from './pages/tournaments/OrganizerDashboard';
@@ -64,6 +65,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/trial-signup" element={<TrialSignup />} />
             <Route path="/proeflessen" element={<TrialSignup />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/word-lid" element={<WordLid />} />
             <Route path="/tournaments" element={<Tournaments />} />
             <Route path="/tournaments/:id" element={<TournamentDetail />} />

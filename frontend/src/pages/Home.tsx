@@ -39,8 +39,8 @@ export default function Home() {
             <div className="hidden md:flex items-center gap-8">
               {!isAuthenticated ? (
                 <>
-                  <Link to="/proeflessen" className="text-sm font-semibold text-white hover:text-primary-100">Gratis proefles</Link>
-                  <Link to="/word-lid" className="text-sm font-semibold text-white hover:text-primary-100">Lid worden</Link>
+                  <Link to="/onboarding" state={{ mode: 'trial' }} className="text-sm font-semibold text-white hover:text-primary-100">Gratis proefles</Link>
+                  <Link to="/onboarding" state={{ mode: 'membership' }} className="text-sm font-semibold text-white hover:text-primary-100">Lid worden</Link>
                   <Link to="/login" className="text-xs text-primary-100 hover:text-white">Inloggen</Link>
                 </>
               ) : (
@@ -53,7 +53,7 @@ export default function Home() {
 
             {/* Mobile CTAs */}
             <div className="md:hidden flex items-center gap-2">
-              <Link to="/proeflessen" className="text-xs font-semibold text-white">Gratis</Link>
+              <Link to="/onboarding" state={{ mode: 'trial' }} className="text-xs font-semibold text-white">Gratis</Link>
             </div>
           </div>
         </div>
@@ -77,13 +77,15 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    to="/proeflessen"
+                    to="/onboarding"
+                    state={{ mode: 'trial' }}
                     className={`${btnPrimary} px-8 py-4 shadow-xl shadow-primary-600/25`}
                   >
                     Reserveer gratis proefles
                   </Link>
                   <Link
-                    to="/word-lid"
+                    to="/onboarding"
+                    state={{ mode: 'membership' }}
                     className={`${btnSecondary} px-8 py-4 border border-white/20`}
                   >
                     Info over lidmaatschap
@@ -277,7 +279,8 @@ export default function Home() {
                   Geen ervaring nodig. We hebben alles wat je nodig hebt, en iedereen wil je helpen.
                 </p>
                 <Link
-                  to="/proeflessen"
+                  to="/onboarding"
+                  state={{ mode: 'trial' }}
                   className={`${btnPrimary} px-8 py-3 text-lg`}
                 >
                   → Reserveer je gratis les
@@ -331,7 +334,8 @@ export default function Home() {
                   </div>
 
                   <Link
-                    to="/proeflessen"
+                    to="/onboarding"
+                    state={{ mode: 'trial' }}
                     className={`${btnPrimary} w-full bg-accent-600 hover:bg-accent-700 border-0 shadow-lg mb-4`}
                   >
                     Reserveer je gratis proefles
@@ -366,7 +370,8 @@ export default function Home() {
                   </div>
 
                   <Link
-                    to="/word-lid"
+                    to="/onboarding"
+                    state={{ mode: 'membership' }}
                     className={`${btnPrimary} w-full shadow-lg mb-4`}
                   >
                     Bekijk lidmaatschappen
@@ -457,13 +462,15 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/proeflessen"
+                to="/onboarding"
+                state={{ mode: 'trial' }}
                 className={`${btnLight} px-8 py-4 text-lg`}
               >
                 → Reserveer je gratis proefles
               </Link>
               <Link
-                to="/word-lid"
+                to="/onboarding"
+                state={{ mode: 'membership' }}
                 className={`${btnPrimary} px-8 py-4 text-lg bg-primary-500 hover:bg-primary-400 border border-primary-400`}
               >
                 → Info over lidmaatschap
