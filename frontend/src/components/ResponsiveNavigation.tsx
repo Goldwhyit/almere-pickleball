@@ -35,8 +35,8 @@ const ResponsiveNavigation: React.FC = () => {
   // Navigation links - customize based on user role
   const publicLinks: NavLink[] = [
     { label: 'Home', href: '/' },
-    { label: 'Proeflessen', href: '/proeflessen' },
-    { label: 'Word Lid', href: '/word-lid' },
+    { label: 'Proeflessen', href: '/onboarding' },
+    { label: 'Word Lid', href: '/onboarding' },
     { label: 'Toernooien', href: '/tournaments' },
     { label: 'Contact', href: '/contact' },
   ];

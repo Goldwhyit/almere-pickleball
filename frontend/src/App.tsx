@@ -64,7 +64,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/trial-signup" element={<TrialSignup />} />
-            <Route path="/proeflessen" element={<TrialSignup />} />
+            <Route
+              path="/proeflessen"
+              element={<Navigate to="/onboarding" replace state={{ mode: 'trial' }} />}
+            />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/word-lid" element={<WordLid />} />
             <Route path="/tournaments" element={<Tournaments />} />
