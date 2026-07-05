@@ -19,6 +19,7 @@ const prisma_module_1 = require("./prisma/prisma.module");
 const tournaments_module_1 = require("./tournaments/tournaments.module");
 const trial_lessons_module_1 = require("./trial-lessons/trial-lessons.module");
 const memberships_module_1 = require("./memberships/memberships.module");
+const matches_module_1 = require("./matches/matches.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +35,7 @@ exports.AppModule = AppModule = __decorate([
             tournaments_module_1.TournamentsModule,
             trial_lessons_module_1.TrialLessonsModule,
             memberships_module_1.MembershipsModule,
+            matches_module_1.MatchesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
