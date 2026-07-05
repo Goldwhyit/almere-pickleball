@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
   const isAuthFree = url.includes('/auth/login') || url.includes('/trial-lessons/signup');
 
   if (!isAuthFree) {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

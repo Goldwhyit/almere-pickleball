@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { TrialLessonsModule } from './trial-lessons/trial-lessons.module';
 import { MembershipsModule } from './memberships/memberships.module';
+import { MatchesModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MembershipsModule } from './memberships/memberships.module';
     TournamentsModule,
     TrialLessonsModule,
     MembershipsModule,
+    MatchesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

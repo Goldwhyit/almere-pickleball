@@ -38,6 +38,11 @@ export default function TrialDashboard() {
 
   const fetchTrialStatus = async () => {
     try {
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
       const status = await trialApi.getMyStatus(token);
       const member = status?.member || status || {};
       const trialStartDate = status?.trialStartDate || member?.trialStartDate;
@@ -70,8 +75,13 @@ export default function TrialDashboard() {
       if (normalizedStatus.isTrialEnded) {
         setShowCompletionModal(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch trial status:', error);
+      if (error?.response?.status === 401) {
+        logout();
+        navigate('/login');
+        return;
+      }
     } finally {
       setLoading(false);
     }
