@@ -63,6 +63,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/trial-signup" element={<TrialSignup />} />
+            <Route path="/proeflessen" element={<TrialSignup />} />
             <Route path="/word-lid" element={<WordLid />} />
             <Route path="/tournaments" element={<Tournaments />} />
             <Route path="/tournaments/:id" element={<TournamentDetail />} />
