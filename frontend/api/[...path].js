@@ -1,4 +1,13 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   const backendBase = (process.env.VITE_API_URL || process.env.BACKEND_URL || '').trim();
 
   if (!backendBase) {
@@ -39,18 +48,10 @@ module.exports = async function handler(req, res) {
 
   res.status(response.status);
   res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
 
   if (responseText) {
     res.send(responseText);
   } else {
     res.end();
   }
-};
+}
