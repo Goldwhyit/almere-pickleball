@@ -66,7 +66,7 @@ export default function Login() {
       setTimeout(() => {
         setShowWelcome(false);
         // Redirect based on account type
-        const accountType = data.user.accountType || 'MEMBER';
+        const accountType = data.user.member?.accountType || data.user.accountType || 'MEMBER';
         if (accountType === 'TRIAL') {
           navigate('/trial-dashboard');
         } else {

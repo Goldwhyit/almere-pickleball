@@ -70,6 +70,7 @@ function App() {
             />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/word-lid" element={<WordLid />} />
+            <Route path="/memberships" element={<Navigate to="/word-lid" replace />} />
             <Route path="/tournaments" element={<Tournaments />} />
             <Route path="/tournaments/:id" element={<TournamentDetail />} />
             <Route path="/tournaments/:id/organizer" element={<OrganizerDashboard />} />

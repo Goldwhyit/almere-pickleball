@@ -20,10 +20,10 @@ export default function TrialDashboard() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackReason, setFeedbackReason] = useState('');
 
-  const token = localStorage.getItem('token') || '';
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !token) {
       navigate('/login');
       return;
     }
@@ -34,15 +34,40 @@ export default function TrialDashboard() {
     }
 
     fetchTrialStatus();
-  }, [user, navigate]);
+  }, [user, token, navigate]);
 
   const fetchTrialStatus = async () => {
     try {
       const status = await trialApi.getMyStatus(token);
-      setTrialStatus(status);
+      const member = status?.member || status || {};
+      const trialStartDate = status?.trialStartDate || member?.trialStartDate;
+      const trialEndDate = status?.trialEndDate || member?.trialEndDate;
+      const fallbackStartDate = new Date();
+      const fallbackEndDate = new Date();
+      fallbackEndDate.setDate(fallbackEndDate.getDate() + 14);
 
-      // Show completion modal if trial ended and not yet completed
-      if (status.shouldShowCompletionModal) {
+      const normalizedStatus = {
+        ...status,
+        member,
+        firstName: member?.firstName || status?.firstName || user?.member?.firstName || 'deelnemer',
+        lessonCount: status?.lessonCount ?? status?.lessonsBooked ?? member?.trialLessonsBooked ?? 0,
+        completedLessons: status?.completedLessons ?? status?.lessonsCompleted ?? member?.trialLessonsCompleted ?? 0,
+        lessons: status?.lessons || [],
+        trialStartDate: trialStartDate || fallbackStartDate.toISOString(),
+        trialEndDate: trialEndDate || fallbackEndDate.toISOString(),
+        isTrialEnded: Boolean(
+          status?.isTrialEnded ||
+            status?.status === 'COMPLETED' ||
+            member?.trialStatus === 'COMPLETED' ||
+            member?.trialStatus === 'DECLINED' ||
+            member?.trialStatus === 'EXPIRED'
+        ),
+        trialStatus: status?.status || member?.trialStatus || 'ACTIVE',
+      };
+
+      setTrialStatus(normalizedStatus);
+
+      if (normalizedStatus.isTrialEnded) {
         setShowCompletionModal(true);
       }
     } catch (error) {
@@ -73,7 +98,7 @@ export default function TrialDashboard() {
   };
 
   const handleConvertToMember = () => {
-    navigate('/memberships');
+    navigate('/word-lid');
   };
 
   const handleDeclineMembership = async () => {

@@ -25,36 +25,49 @@ interface AuthState {
   setUser: (user: User) => void;
 }
 
+const normalizeUser = (user: User | null): User | null => {
+  if (!user) return null;
+  return {
+    ...user,
+    member: user.member ? { ...user.member } : undefined,
+    accountType: user.member?.accountType || 'MEMBER',
+  } as User & { accountType?: string };
+};
+
 export const useAuthStore = create<AuthState>((set) => {
   // Try to restore user from localStorage
   let storedUser: User | null = null;
   try {
     const userStr = localStorage.getItem('user');
-    if (userStr) storedUser = JSON.parse(userStr);
+    if (userStr) storedUser = normalizeUser(JSON.parse(userStr));
   } catch {}
 
   return {
     user: storedUser,
-    isAuthenticated: !!localStorage.getItem('accessToken'),
+    isAuthenticated: !!localStorage.getItem('accessToken') || !!localStorage.getItem('token'),
     isLoading: false,
 
     login: (user, tokens) => {
+      const normalizedUser = normalizeUser(user);
       localStorage.setItem('accessToken', tokens.accessToken);
       localStorage.setItem('refreshToken', tokens.refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
-      set({ user, isAuthenticated: true });
+      localStorage.setItem('token', tokens.accessToken);
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+      set({ user: normalizedUser, isAuthenticated: true });
     },
 
     logout: () => {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
       set({ user: null, isAuthenticated: false });
     },
 
     setUser: (user) => {
-      localStorage.setItem('user', JSON.stringify(user));
-      set({ user, isAuthenticated: true });
+      const normalizedUser = normalizeUser(user);
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+      set({ user: normalizedUser, isAuthenticated: true });
     },
   };
 });
