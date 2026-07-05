@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Modal from './Modal';
 import axios from 'axios';
+import { getApiBaseUrl } from '../lib/apiBase';
 
 interface MembershipPaymentModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ const MEMBERSHIP_LABELS: Record<string, string> = {
   PER_SESSION: 'Per sessie'
 };
 
-const API_BASE_URL = ((import.meta.env.VITE_API_URL as string | undefined)?.trim() || (typeof window !== 'undefined' ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '');
+const API_BASE_URL = getApiBaseUrl();
 
 export default function MembershipPaymentModal({ 
   isOpen, 

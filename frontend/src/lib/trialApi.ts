@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getApiBaseUrl } from './apiBase';
 
 const api = axios.create({
-  baseURL: ((import.meta.env.VITE_API_URL as string | undefined)?.trim() || (typeof window !== 'undefined' ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, ''),
+  baseURL: getApiBaseUrl(),
 });
 
 export const trialApi = {
