@@ -11,6 +11,7 @@ import { TournamentsModule } from './tournaments/tournaments.module';
 import { TrialLessonsModule } from './trial-lessons/trial-lessons.module';
 import { MembershipsModule } from './memberships/memberships.module';
 import { MatchesModule } from './matches/matches.module';
+import { PunchCardModule } from './punch-card/punch-card.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MatchesModule } from './matches/matches.module';
     TrialLessonsModule,
     MembershipsModule,
     MatchesModule,
+    PunchCardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

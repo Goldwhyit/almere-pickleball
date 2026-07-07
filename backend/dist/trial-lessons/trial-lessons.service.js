@@ -13,6 +13,7 @@ exports.TrialLessonsService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = require("bcrypt");
 const prisma_service_1 = require("../prisma/prisma.service");
+const validate_session_date_1 = require("../common/validate-session-date");
 const TRIAL_DURATION_DAYS = 21;
 const TRIAL_LESSON_WEEKDAY = 2;
 let TrialLessonsService = class TrialLessonsService {
@@ -20,25 +21,14 @@ let TrialLessonsService = class TrialLessonsService {
         this.prisma = prisma;
     }
     validateTrialSlot(member, dateStr) {
-        const datePart = dateStr.split('T')[0];
-        const date = new Date(`${datePart}T00:00:00`);
-        if (Number.isNaN(date.getTime())) {
-            throw new common_1.BadRequestException('Ongeldige datum');
-        }
-        if (date.getDay() !== TRIAL_LESSON_WEEKDAY) {
-            throw new common_1.BadRequestException('Proeflessen kunnen alleen op dinsdag worden ingepland');
-        }
-        const now = new Date();
-        if (date.getTime() <= now.getTime()) {
-            throw new common_1.BadRequestException('Kies een datum in de toekomst');
-        }
-        if (member.trialStartDate && date.getTime() < member.trialStartDate.getTime()) {
-            throw new common_1.BadRequestException('Deze datum ligt voor de start van je proefperiode');
-        }
-        if (member.trialEndDate && date.getTime() > member.trialEndDate.getTime()) {
-            throw new common_1.BadRequestException('Deze datum valt buiten je proefperiode van 21 dagen');
-        }
-        return date;
+        return (0, validate_session_date_1.validateSessionSlot)({
+            dateStr,
+            allowedWeekdays: [TRIAL_LESSON_WEEKDAY],
+            windowStart: member.trialStartDate,
+            windowEnd: member.trialEndDate,
+            weekdayMessage: 'Proeflessen kunnen alleen op dinsdag worden ingepland',
+            windowExpiredMessage: 'Deze datum valt buiten je proefperiode van 21 dagen',
+        });
     }
     async signup(dto) {
         if (!dto.agreedToTerms) {

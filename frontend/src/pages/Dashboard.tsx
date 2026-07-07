@@ -33,11 +33,15 @@ export default function Dashboard() {
   }
 
   const membershipPlan = user.member?.membershipPlan;
+
+  if (membershipPlan === 'PUNCH_CARD') {
+    return <Navigate to="/punch-card-dashboard" replace />;
+  }
+
   const membershipPlanLabel = membershipPlan
     ? MEMBERSHIP_PLAN_LABELS[membershipPlan] || membershipPlan
     : 'Onbekend';
   const membershipStatus = user.member?.membershipStatus || 'PENDING';
-  const isPunchCard = membershipPlan === 'PUNCH_CARD';
 
   return (
     <div className="min-h-screen bg-slate-50 py-10">
@@ -85,22 +89,9 @@ export default function Dashboard() {
                     🎾
                   </span>
                 </div>
-                {isPunchCard ? (
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    Je hebt nog <strong>{user.member?.punchCardRemaining ?? 0}</strong> beurten over
-                    {user.member?.punchCardExpiryDate && (
-                      <>
-                        {' '}(geldig tot{' '}
-                        {new Date(user.member.punchCardExpiryDate).toLocaleDateString('nl-NL')})
-                      </>
-                    )}
-                    .
-                  </p>
-                ) : (
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    Status: <strong>{membershipStatus}</strong>
-                  </p>
-                )}
+                <p className="mt-4 text-sm leading-6 text-slate-600">
+                  Status: <strong>{membershipStatus}</strong>
+                </p>
               </div>
 
               <div className="rounded-[1.75rem] bg-white p-6 shadow-lg">

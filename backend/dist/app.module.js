@@ -20,6 +20,7 @@ const tournaments_module_1 = require("./tournaments/tournaments.module");
 const trial_lessons_module_1 = require("./trial-lessons/trial-lessons.module");
 const memberships_module_1 = require("./memberships/memberships.module");
 const matches_module_1 = require("./matches/matches.module");
+const punch_card_module_1 = require("./punch-card/punch-card.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             trial_lessons_module_1.TrialLessonsModule,
             memberships_module_1.MembershipsModule,
             matches_module_1.MatchesModule,
+            punch_card_module_1.PunchCardModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

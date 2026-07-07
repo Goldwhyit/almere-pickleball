@@ -35,6 +35,8 @@ export class MembershipsService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const membershipPlan = resolveMembershipPlan(dto.membershipType);
+    const isPunchCard = membershipPlan === MembershipPlan.PUNCH_CARD;
 
     const user = await this.prisma.user.create({
       data: {
@@ -54,8 +56,12 @@ export class MembershipsService {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
         accountType: 'MEMBER',
         membershipStatus: 'PENDING',
-        membershipPlan: resolveMembershipPlan(dto.membershipType),
+        membershipPlan,
         trialStatus: 'PENDING',
+        ...(isPunchCard && {
+          punchCardRemaining: 10,
+          punchCardExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+        }),
       },
     });
 

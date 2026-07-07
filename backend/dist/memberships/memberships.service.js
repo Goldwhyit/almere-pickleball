@@ -42,6 +42,8 @@ let MembershipsService = class MembershipsService {
             throw new common_1.ConflictException('An account with this email already exists');
         }
         const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const membershipPlan = resolveMembershipPlan(dto.membershipType);
+        const isPunchCard = membershipPlan === client_1.MembershipPlan.PUNCH_CARD;
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
@@ -51,17 +53,10 @@ let MembershipsService = class MembershipsService {
             },
         });
         const member = await this.prisma.member.create({
-            data: {
-                userId: user.id,
-                firstName: dto.firstName,
-                lastName: dto.lastName,
-                phone: dto.phone,
-                dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
-                accountType: 'MEMBER',
-                membershipStatus: 'PENDING',
-                membershipPlan: resolveMembershipPlan(dto.membershipType),
-                trialStatus: 'PENDING',
-            },
+            data: Object.assign({ userId: user.id, firstName: dto.firstName, lastName: dto.lastName, phone: dto.phone, dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null, accountType: 'MEMBER', membershipStatus: 'PENDING', membershipPlan, trialStatus: 'PENDING' }, (isPunchCard && {
+                punchCardRemaining: 10,
+                punchCardExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+            })),
         });
         return {
             success: true,

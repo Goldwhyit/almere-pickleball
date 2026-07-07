@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import WordLid from './pages/WordLid';
 import TrialSignup from './pages/TrialSignup';
 import TrialDashboard from './pages/TrialDashboard';
+import PunchCardDashboard from './pages/PunchCardDashboard';
 import Onboarding from './pages/Onboarding';
 import Tournaments from './pages/tournaments/Tournaments';
 import TournamentDetail from './pages/tournaments/TournamentDetail';
@@ -91,6 +92,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TrialDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/punch-card-dashboard"
+              element={
+                <ProtectedRoute>
+                  <PunchCardDashboard />
                 </ProtectedRoute>
               }
             />

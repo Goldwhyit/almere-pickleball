@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import * as bcrypt from 'bcrypt';
 import { Member } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { validateSessionSlot } from '../common/validate-session-date';
 
 const TRIAL_DURATION_DAYS = 21;
 const TRIAL_LESSON_WEEKDAY = 2; // dinsdag
@@ -11,30 +12,14 @@ export class TrialLessonsService {
   constructor(private readonly prisma: PrismaService) {}
 
   private validateTrialSlot(member: Member, dateStr: string): Date {
-    const datePart = dateStr.split('T')[0];
-    const date = new Date(`${datePart}T00:00:00`);
-    if (Number.isNaN(date.getTime())) {
-      throw new BadRequestException('Ongeldige datum');
-    }
-
-    if (date.getDay() !== TRIAL_LESSON_WEEKDAY) {
-      throw new BadRequestException('Proeflessen kunnen alleen op dinsdag worden ingepland');
-    }
-
-    const now = new Date();
-    if (date.getTime() <= now.getTime()) {
-      throw new BadRequestException('Kies een datum in de toekomst');
-    }
-
-    if (member.trialStartDate && date.getTime() < member.trialStartDate.getTime()) {
-      throw new BadRequestException('Deze datum ligt voor de start van je proefperiode');
-    }
-
-    if (member.trialEndDate && date.getTime() > member.trialEndDate.getTime()) {
-      throw new BadRequestException('Deze datum valt buiten je proefperiode van 21 dagen');
-    }
-
-    return date;
+    return validateSessionSlot({
+      dateStr,
+      allowedWeekdays: [TRIAL_LESSON_WEEKDAY],
+      windowStart: member.trialStartDate,
+      windowEnd: member.trialEndDate,
+      weekdayMessage: 'Proeflessen kunnen alleen op dinsdag worden ingepland',
+      windowExpiredMessage: 'Deze datum valt buiten je proefperiode van 21 dagen',
+    });
   }
 
   async signup(dto: {
