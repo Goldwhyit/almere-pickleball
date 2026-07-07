@@ -73,6 +73,24 @@ model Member {
   lastName                  String
   phone                     String?
   dateOfBirth               DateTime?
+
+  // Adres
+  street                    String?
+  houseNumber               String?
+  postalCode                String?
+  city                      String?
+
+  // Noodcontact
+  emergencyName             String?
+  emergencyPhone            String?
+  emergencyRelation         String?
+
+  // Bank / SEPA-machtiging
+  iban                      String?
+  ibanAccountHolder         String?
+  sepaMandateConsent        Boolean         @default(false)
+  sepaMandateConsentDate    DateTime?
+
   duprRating                Float?          @default(0)
   duprId                    String?
   accountType               AccountType     @default(MEMBER)

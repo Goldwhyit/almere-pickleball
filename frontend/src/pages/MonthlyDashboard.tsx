@@ -77,16 +77,25 @@ export default function MonthlyDashboard() {
             >
               ← Terug naar home
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-              className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
-            >
-              Uitloggen
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/account')}
+                className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+              >
+                👤 Mijn account
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
+                className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+              >
+                Uitloggen
+              </button>
+            </div>
           </div>
           <h1 className="text-4xl font-bold mb-2">📅 Mijn Maandabonnement</h1>
           <p className="text-primary-100">Welkom, {firstName}!</p>

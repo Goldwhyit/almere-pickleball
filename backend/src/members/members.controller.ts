@@ -1,9 +1,11 @@
-import { Controller, Get, Put, Body, UseGuards, Request, Patch, Param, Delete } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Put, Body, UseGuards, Request, Patch, Param, Delete } from '@nestjs/common';
 import { MailService } from '../common/mail.service';
 import { Public } from '../common/decorators/auth.decorators';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { isValidIban } from '../common/validate-iban';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('Members')
 @Controller('members')
@@ -21,6 +23,20 @@ export class MembersController {
         id: true,
         firstName: true,
         lastName: true,
+        phone: true,
+        dateOfBirth: true,
+        street: true,
+        houseNumber: true,
+        postalCode: true,
+        city: true,
+        emergencyName: true,
+        emergencyPhone: true,
+        emergencyRelation: true,
+        iban: true,
+        ibanAccountHolder: true,
+        sepaMandateConsent: true,
+        sepaMandateConsentDate: true,
+        accountType: true,
         membershipStatus: true,
         membershipPlan: true,
         punchCardRemaining: true,
@@ -31,13 +47,37 @@ export class MembersController {
   }
 
   @Put('profile')
-  async updateProfile(@Request() req: any, @Body() data: any) {
+  async updateProfile(@Request() req: any, @Body() dto: UpdateProfileDto) {
     const userId = req.user?.userId || req.user?.id;
     if (!userId) throw new Error('Geen userId in JWT');
+
+    if (dto.iban && !isValidIban(dto.iban)) {
+      throw new BadRequestException('Ongeldig IBAN-nummer');
+    }
+
+    const { dateOfBirth, sepaMandateConsent, ...rest } = dto;
+    const current = await this.prisma.member.findUnique({ where: { userId } });
+
     return this.prisma.member.update({
       where: { userId },
-      data: { ...data },
+      data: {
+        ...rest,
+        ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
+        ...(sepaMandateConsent !== undefined && {
+          sepaMandateConsent,
+          sepaMandateConsentDate:
+            sepaMandateConsent && !current?.sepaMandateConsent ? new Date() : current?.sepaMandateConsentDate,
+        }),
+      },
     });
+  }
+
+  @Delete('account')
+  async deactivateAccount(@Request() req: any) {
+    const userId = req.user?.userId || req.user?.id;
+    if (!userId) throw new Error('Geen userId in JWT');
+    await this.prisma.user.update({ where: { id: userId }, data: { isActive: false } });
+    return { success: true, message: 'Account gedeactiveerd' };
   }
 
   @Get('all')

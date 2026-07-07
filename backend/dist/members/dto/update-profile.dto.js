@@ -9,88 +9,93 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ApplyMembershipDto = void 0;
+exports.UpdateProfileDto = void 0;
 const class_validator_1 = require("class-validator");
-class ApplyMembershipDto {
+class UpdateProfileDto {
 }
-exports.ApplyMembershipDto = ApplyMembershipDto;
+exports.UpdateProfileDto = UpdateProfileDto;
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "firstName", void 0);
+], UpdateProfileDto.prototype, "firstName", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "lastName", void 0);
+], UpdateProfileDto.prototype, "lastName", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)(),
-    __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "email", void 0);
-__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(30),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "phone", void 0);
+], UpdateProfileDto.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "dateOfBirth", void 0);
+], UpdateProfileDto.prototype, "dateOfBirth", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(150),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "street", void 0);
+], UpdateProfileDto.prototype, "street", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(20),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "houseNumber", void 0);
+], UpdateProfileDto.prototype, "houseNumber", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(10),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "postalCode", void 0);
+], UpdateProfileDto.prototype, "postalCode", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "city", void 0);
+], UpdateProfileDto.prototype, "city", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "emergencyName", void 0);
+], UpdateProfileDto.prototype, "emergencyName", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(30),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "emergencyPhone", void 0);
+], UpdateProfileDto.prototype, "emergencyPhone", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(50),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "emergencyRelation", void 0);
+], UpdateProfileDto.prototype, "emergencyRelation", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^[A-Z]{2}[0-9]{2}[A-Z0-9]{10,30}$/, {
+        message: 'Ongeldig IBAN-formaat',
+    }),
     __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "membershipType", void 0);
+], UpdateProfileDto.prototype, "iban", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(150),
+    __metadata("design:type", String)
+], UpdateProfileDto.prototype, "ibanAccountHolder", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], ApplyMembershipDto.prototype, "agreedToTerms", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], ApplyMembershipDto.prototype, "agreedToPrivacy", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], ApplyMembershipDto.prototype, "newsletter", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(8),
-    __metadata("design:type", String)
-], ApplyMembershipDto.prototype, "password", void 0);
-//# sourceMappingURL=apply-membership.dto.js.map
+], UpdateProfileDto.prototype, "sepaMandateConsent", void 0);
+//# sourceMappingURL=update-profile.dto.js.map

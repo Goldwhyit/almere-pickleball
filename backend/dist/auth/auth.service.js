@@ -46,6 +46,9 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Ongeldige inloggegevens');
         }
+        if (!user.isActive) {
+            throw new common_1.UnauthorizedException('Dit account is gedeactiveerd');
+        }
         const isValid = await bcrypt.compare(loginDto.password, user.password);
         if (!isValid) {
             throw new common_1.UnauthorizedException('Ongeldige inloggegevens');

@@ -11,6 +11,7 @@ import TrialSignup from './pages/TrialSignup';
 import TrialDashboard from './pages/TrialDashboard';
 import PunchCardDashboard from './pages/PunchCardDashboard';
 import MonthlyDashboard from './pages/MonthlyDashboard';
+import AccountPage from './pages/AccountPage';
 import Onboarding from './pages/Onboarding';
 import Tournaments from './pages/tournaments/Tournaments';
 import TournamentDetail from './pages/tournaments/TournamentDetail';
@@ -109,6 +110,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MonthlyDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
                 </ProtectedRoute>
               }
             />

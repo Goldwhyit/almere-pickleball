@@ -19,6 +19,34 @@ export class ApplyMembershipDto {
 
   @IsOptional()
   @IsString()
+  street?: string;
+
+  @IsOptional()
+  @IsString()
+  houseNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  postalCode?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  emergencyName?: string;
+
+  @IsOptional()
+  @IsString()
+  emergencyPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  emergencyRelation?: string;
+
+  @IsOptional()
+  @IsString()
   membershipType?: string;
 
   @IsBoolean()

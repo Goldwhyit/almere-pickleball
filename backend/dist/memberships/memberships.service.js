@@ -61,7 +61,7 @@ let MembershipsService = class MembershipsService {
             },
         });
         const member = await this.prisma.member.create({
-            data: Object.assign({ userId: user.id, firstName: dto.firstName, lastName: dto.lastName, phone: dto.phone, dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null, accountType: 'MEMBER', membershipStatus: 'PENDING', membershipPlan, trialStatus: 'PENDING' }, (isPunchCard && {
+            data: Object.assign({ userId: user.id, firstName: dto.firstName, lastName: dto.lastName, phone: dto.phone, dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null, street: dto.street, houseNumber: dto.houseNumber, postalCode: dto.postalCode, city: dto.city, emergencyName: dto.emergencyName, emergencyPhone: dto.emergencyPhone, emergencyRelation: dto.emergencyRelation, accountType: 'MEMBER', membershipStatus: 'PENDING', membershipPlan, trialStatus: 'PENDING' }, (isPunchCard && {
                 punchCardRemaining: 10,
                 punchCardExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
             })),

@@ -27,6 +27,10 @@ export class AuthService {
       throw new UnauthorizedException('Ongeldige inloggegevens');
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException('Dit account is gedeactiveerd');
+    }
+
     const isValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isValid) {
       throw new UnauthorizedException('Ongeldige inloggegevens');
