@@ -156,11 +156,12 @@ export default function PunchCardDashboard() {
           </div>
         </div>
 
-        {/* Visual card */}
+        {/* Alles in één venster */}
         <div className="bg-white rounded-lg shadow p-8 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Jouw strippenkaart</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
             {Array.from({ length: TOTAL_STRIPS }).map((_, i) => {
+              const stripLabel = TOTAL_STRIPS - i;
               const session = sessions[i];
               if (!session) {
                 return (
@@ -168,7 +169,7 @@ export default function PunchCardDashboard() {
                     key={`empty-${i}`}
                     className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 h-28"
                   >
-                    <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{i + 1}</span>
+                    <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{stripLabel}</span>
                     <span className="text-2xl">—</span>
                     <span className="text-xs mt-1">Beschikbaar</span>
                   </div>
@@ -185,7 +186,7 @@ export default function PunchCardDashboard() {
                     isPast ? 'bg-gray-100 border border-gray-200' : 'bg-green-50 border-2 border-green-500'
                   }`}
                 >
-                  <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{i + 1}</span>
+                  <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{stripLabel}</span>
                   <span className="text-xs font-semibold text-gray-500">
                     {isPast ? '✅ Genomen' : '🟢 Gepland'}
                   </span>
@@ -212,49 +213,53 @@ export default function PunchCardDashboard() {
               );
             })}
           </div>
-        </div>
 
-        {/* Booking / rescheduling panel */}
-        {reschedulingId && (
-          <div className="bg-white rounded-lg shadow p-8 mb-8 border-2 border-primary-500">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Kies een nieuwe datum</h2>
-              <button
-                onClick={() => setReschedulingId(null)}
-                className="text-sm text-gray-500 hover:text-gray-700 underline"
-              >
-                Annuleren
-              </button>
+          {/* Datumkeuze, in hetzelfde venster */}
+          {reschedulingId && (
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Kies een nieuwe datum voor strip #{TOTAL_STRIPS - sessions.findIndex((s: any) => s.id === reschedulingId)}
+                </h3>
+                <button
+                  onClick={() => setReschedulingId(null)}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Annuleren
+                </button>
+              </div>
+              <DateList
+                dates={availableDates}
+                onSelect={handleRescheduleTo}
+                stripNumber={TOTAL_STRIPS - sessions.findIndex((s: any) => s.id === reschedulingId)}
+              />
             </div>
-            <DateList
-              dates={availableDates}
-              onSelect={handleRescheduleTo}
-              stripNumber={sessions.findIndex((s: any) => s.id === reschedulingId) + 1}
-            />
-          </div>
-        )}
+          )}
 
-        {!reschedulingId && remaining > 0 && (
-          <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Sessie inplannen</h2>
-            <p className="text-sm text-gray-600 mb-6">
-              Kies een beschikbare dinsdag of donderdag, 19:30 - 21:30 uur.
-            </p>
-            <DateList dates={availableDates} onSelect={handleBookDate} startNumber={sessions.length + 1} />
-          </div>
-        )}
+          {!reschedulingId && remaining > 0 && (
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Kies een nieuwe datum</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Strip #{TOTAL_STRIPS - sessions.length} — dinsdag of donderdag, 19:30 - 21:30 uur.
+              </p>
+              <DateList dates={availableDates} onSelect={handleBookDate} stripNumber={TOTAL_STRIPS - sessions.length} />
+            </div>
+          )}
 
-        {!reschedulingId && remaining <= 0 && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
-            <p className="text-yellow-900 font-semibold">Je strippenkaart is op.</p>
-            <button
-              onClick={() => navigate('/word-lid')}
-              className="mt-4 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-            >
-              Nieuwe strippenkaart of ander abonnement kiezen →
-            </button>
-          </div>
-        )}
+          {!reschedulingId && remaining <= 0 && (
+            <div className="border-t border-gray-200 pt-6">
+              <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
+                <p className="text-yellow-900 font-semibold">Je strippenkaart is op.</p>
+                <button
+                  onClick={() => navigate('/word-lid')}
+                  className="mt-4 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                >
+                  Nieuwe strippenkaart of ander abonnement kiezen →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {showUpsellModal && (
@@ -304,12 +309,10 @@ export default function PunchCardDashboard() {
 function DateList({
   dates,
   onSelect,
-  startNumber,
   stripNumber,
 }: {
   dates: string[];
   onSelect: (date: string) => void;
-  startNumber?: number;
   stripNumber?: number;
 }) {
   if (dates.length === 0) {
@@ -318,32 +321,29 @@ function DateList({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {dates.map((date, index) => {
-        const number = stripNumber ?? (startNumber !== undefined ? startNumber + index : undefined);
-        return (
-          <div key={date} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-            <div>
-              {number !== undefined && (
-                <p className="text-xs font-bold text-primary-600 mb-1">Strip #{number}</p>
-              )}
-              <p className="font-semibold text-gray-900">
-                {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
-              </p>
-              <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
-            </div>
-            <button
-              onClick={() => onSelect(date)}
-              className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-            >
-              Kiezen
-            </button>
+      {dates.map((date) => (
+        <div key={date} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            {stripNumber !== undefined && (
+              <p className="text-xs font-bold text-primary-600 mb-1">Strip #{stripNumber}</p>
+            )}
+            <p className="font-semibold text-gray-900">
+              {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              })}
+            </p>
+            <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
           </div>
-        );
-      })}
+          <button
+            onClick={() => onSelect(date)}
+            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Kiezen
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
