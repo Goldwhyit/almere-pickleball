@@ -11,3 +11,6 @@ export const CurrentUser = createParamDecorator(
 );
 
 export type UserRole = 'MEMBER' | 'ORGANIZER' | 'ADMIN';
+
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);

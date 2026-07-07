@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public, CurrentUser } from '../common/decorators/auth.decorators';
+import { Public, CurrentUser, Roles } from '../common/decorators/auth.decorators';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import { ApplyMembershipDto } from './dto/apply-membership.dto';
 import { MembershipsService } from './memberships.service';
 
@@ -37,5 +38,13 @@ export class MembershipsController {
   @Get('my-membership')
   async getMyMembership(@CurrentUser() user: any) {
     return this.membershipsService.getMyMembership(user.userId || user.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @Patch(':membershipId/mark-paid')
+  async markPaid(@Param('membershipId') membershipId: string) {
+    return this.membershipsService.markPaymentReceived(membershipId);
   }
 }

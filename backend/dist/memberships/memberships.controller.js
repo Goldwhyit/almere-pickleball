@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
+const roles_guard_1 = require("../common/guards/roles.guard");
 const apply_membership_dto_1 = require("./dto/apply-membership.dto");
 const memberships_service_1 = require("./memberships.service");
 let MembershipsController = class MembershipsController {
@@ -34,6 +35,9 @@ let MembershipsController = class MembershipsController {
     }
     async getMyMembership(user) {
         return this.membershipsService.getMyMembership(user.userId || user.id);
+    }
+    async markPaid(membershipId) {
+        return this.membershipsService.markPaymentReceived(membershipId);
     }
 };
 exports.MembershipsController = MembershipsController;
@@ -73,6 +77,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MembershipsController.prototype, "getMyMembership", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, auth_decorators_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Patch)(':membershipId/mark-paid'),
+    __param(0, (0, common_1.Param)('membershipId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MembershipsController.prototype, "markPaid", null);
 exports.MembershipsController = MembershipsController = __decorate([
     (0, swagger_1.ApiTags)('Memberships'),
     (0, common_1.Controller)('memberships'),

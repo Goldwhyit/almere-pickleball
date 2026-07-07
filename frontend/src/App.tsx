@@ -10,6 +10,7 @@ import WordLid from './pages/WordLid';
 import TrialSignup from './pages/TrialSignup';
 import TrialDashboard from './pages/TrialDashboard';
 import PunchCardDashboard from './pages/PunchCardDashboard';
+import MonthlyDashboard from './pages/MonthlyDashboard';
 import Onboarding from './pages/Onboarding';
 import Tournaments from './pages/tournaments/Tournaments';
 import TournamentDetail from './pages/tournaments/TournamentDetail';
@@ -100,6 +101,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PunchCardDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/monthly-dashboard"
+              element={
+                <ProtectedRoute>
+                  <MonthlyDashboard />
                 </ProtectedRoute>
               }
             />

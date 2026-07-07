@@ -23,6 +23,9 @@ interface TestAccount {
     remaining: number;
     expiryDate: Date;
   };
+  monthlyMembership?: {
+    currentPeriodEnd: Date;
+  };
 }
 
 const now = new Date();
@@ -66,6 +69,9 @@ const ACCOUNTS: TestAccount[] = [
     accountType: 'MEMBER',
     membershipPlan: 'MONTHLY',
     membershipStatus: 'ACTIVE',
+    monthlyMembership: {
+      currentPeriodEnd: new Date(now.getTime() + 30 * DAY_MS),
+    },
   },
   {
     email: 'jaarabonnement@almerepickleball.nl',
@@ -149,6 +155,25 @@ async function main() {
         }),
       },
     });
+
+    if (account.monthlyMembership) {
+      const member = await prisma.member.findUnique({ where: { userId: user.id } });
+      const existing = member
+        ? await prisma.membership.findFirst({ where: { memberId: member.id, plan: 'MONTHLY' } })
+        : null;
+      if (member && !existing) {
+        await prisma.membership.create({
+          data: {
+            memberId: member.id,
+            plan: 'MONTHLY',
+            startDate: now,
+            currentPeriodEnd: account.monthlyMembership.currentPeriodEnd,
+            status: 'ACTIVE',
+            autoRenew: true,
+          },
+        });
+      }
+    }
 
     console.log(`✅ ${account.email} (${account.accountType} / ${account.membershipPlan})`);
   }

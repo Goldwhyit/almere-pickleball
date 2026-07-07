@@ -38,6 +38,10 @@ export default function Dashboard() {
     return <Navigate to="/punch-card-dashboard" replace />;
   }
 
+  if (membershipPlan === 'MONTHLY') {
+    return <Navigate to="/monthly-dashboard" replace />;
+  }
+
   const membershipPlanLabel = membershipPlan
     ? MEMBERSHIP_PLAN_LABELS[membershipPlan] || membershipPlan
     : 'Onbekend';

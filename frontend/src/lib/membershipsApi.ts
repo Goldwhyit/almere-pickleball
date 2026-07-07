@@ -22,4 +22,8 @@ export const membershipsAPI = {
     const res = await api.post('/memberships/apply', data);
     return res.data;
   },
+  markPaid: async (membershipId: string) => {
+    const res = await api.patch(`/memberships/${membershipId}/mark-paid`);
+    return res.data;
+  },
 };

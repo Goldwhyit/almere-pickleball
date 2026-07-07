@@ -43,7 +43,11 @@ export class MembersController {
   @Get('all')
   @ApiBearerAuth()
   async getAllMembers() {
-    return this.prisma.member.findMany();
+    return this.prisma.member.findMany({
+      include: {
+        memberships: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
   }
 
   @Get('stats')

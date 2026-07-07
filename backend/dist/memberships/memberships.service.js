@@ -21,6 +21,12 @@ const MEMBERSHIP_PLAN_ALIASES = {
     yearly: client_1.MembershipPlan.YEARLY,
     yearly_upfront: client_1.MembershipPlan.YEARLY_UPFRONT,
 };
+const MONTHLY_PRICE = 15.75;
+function addMonths(date, months) {
+    const result = new Date(date.getTime());
+    result.setMonth(result.getMonth() + months);
+    return result;
+}
 function resolveMembershipPlan(membershipType) {
     if (!membershipType)
         return client_1.MembershipPlan.PER_SESSION;
@@ -44,6 +50,8 @@ let MembershipsService = class MembershipsService {
         const hashedPassword = await bcrypt.hash(dto.password, 10);
         const membershipPlan = resolveMembershipPlan(dto.membershipType);
         const isPunchCard = membershipPlan === client_1.MembershipPlan.PUNCH_CARD;
+        const isMonthly = membershipPlan === client_1.MembershipPlan.MONTHLY;
+        const now = new Date();
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
@@ -58,6 +66,18 @@ let MembershipsService = class MembershipsService {
                 punchCardExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
             })),
         });
+        if (isMonthly) {
+            await this.prisma.membership.create({
+                data: {
+                    memberId: member.id,
+                    plan: membershipPlan,
+                    startDate: now,
+                    currentPeriodEnd: addMonths(now, 1),
+                    status: 'ACTIVE',
+                    autoRenew: true,
+                },
+            });
+        }
         return {
             success: true,
             message: 'Membership application submitted successfully',
@@ -76,8 +96,50 @@ let MembershipsService = class MembershipsService {
         return { success: true, applications: [] };
     }
     async getMyMembership(userId) {
-        const member = await this.prisma.member.findUnique({ where: { userId } });
-        return { success: true, member };
+        const member = await this.prisma.member.findUnique({
+            where: { userId },
+            include: {
+                memberships: { orderBy: { createdAt: 'desc' }, take: 1 },
+            },
+        });
+        if (!member) {
+            return { success: true, member: null, membership: null, isPaymentOutstanding: false };
+        }
+        const membership = member.memberships[0] || null;
+        const isPaymentOutstanding = Boolean((membership === null || membership === void 0 ? void 0 : membership.currentPeriodEnd) && membership.currentPeriodEnd.getTime() <= Date.now());
+        return {
+            success: true,
+            member,
+            membership,
+            isPaymentOutstanding,
+            monthlyPrice: MONTHLY_PRICE,
+        };
+    }
+    async markPaymentReceived(membershipId) {
+        const membership = await this.prisma.membership.findUnique({ where: { id: membershipId } });
+        if (!membership) {
+            throw new common_1.NotFoundException('Membership niet gevonden');
+        }
+        const baseDate = membership.currentPeriodEnd && membership.currentPeriodEnd.getTime() > Date.now()
+            ? membership.currentPeriodEnd
+            : new Date();
+        const [updatedMembership] = await this.prisma.$transaction([
+            this.prisma.membership.update({
+                where: { id: membershipId },
+                data: { currentPeriodEnd: addMonths(baseDate, 1) },
+            }),
+            this.prisma.payment.create({
+                data: {
+                    memberId: membership.memberId,
+                    membershipId: membership.id,
+                    amount: MONTHLY_PRICE,
+                    paymentMethod: 'TRANSFER',
+                    status: 'COMPLETED',
+                    description: 'Maandelijkse contributie',
+                },
+            }),
+        ]);
+        return { success: true, membership: updatedMembership };
     }
 };
 exports.MembershipsService = MembershipsService;

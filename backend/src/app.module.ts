@@ -12,6 +12,7 @@ import { TrialLessonsModule } from './trial-lessons/trial-lessons.module';
 import { MembershipsModule } from './memberships/memberships.module';
 import { MatchesModule } from './matches/matches.module';
 import { PunchCardModule } from './punch-card/punch-card.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PunchCardModule } from './punch-card/punch-card.module';
     MembershipsModule,
     MatchesModule,
     PunchCardModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

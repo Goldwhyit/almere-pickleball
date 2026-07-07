@@ -146,6 +146,7 @@ model Membership {
   plan          MembershipPlan
   startDate     DateTime        @default(now())
   endDate       DateTime?
+  currentPeriodEnd DateTime?
   status        MembershipStatus @default(ACTIVE)
   autoRenew     Boolean         @default(false)
   createdAt     DateTime        @default(now())
@@ -180,6 +181,15 @@ enum PaymentMethod {
   TRANSFER
   CARD
   CASH
+}
+
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
 }
 
 enum PaymentStatus {

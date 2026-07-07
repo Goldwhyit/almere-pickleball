@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { memberAPI } from '../lib/memberApi';
+import { membershipsAPI } from '../lib/membershipsApi';
 import PlayDaysAdminPanel from '../components/PlayDaysAdminPanel';
 
 export default function MembersDashboard() {
@@ -266,6 +267,23 @@ export default function MembersDashboard() {
                          'Jaar Vooruit'}
                       </span>
                     )}
+                    {editId !== m.id && m.membershipPlan === 'MONTHLY' && m.memberships?.[0]?.currentPeriodEnd &&
+                      new Date(m.memberships[0].currentPeriodEnd).getTime() <= Date.now() && (
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold animate-pulse">
+                            ⚠️ Betaling openstaand
+                          </span>
+                          <button
+                            className="text-xs text-blue-600 hover:text-blue-800 font-semibold underline"
+                            onClick={async () => {
+                              await membershipsAPI.markPaid(m.memberships[0].id);
+                              fetchMembers();
+                            }}
+                          >
+                            Markeer betaald
+                          </button>
+                        </div>
+                      )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {editId === m.id ? (

@@ -53,7 +53,11 @@ let MembersController = class MembersController {
         });
     }
     async getAllMembers() {
-        return this.prisma.member.findMany();
+        return this.prisma.member.findMany({
+            include: {
+                memberships: { orderBy: { createdAt: 'desc' }, take: 1 },
+            },
+        });
     }
     async getStats(req) {
         var _a, _b;
