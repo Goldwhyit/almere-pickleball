@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
-const book_trial_dates_dto_1 = require("./dto/book-trial-dates.dto");
+const book_trial_date_dto_1 = require("./dto/book-trial-date.dto");
 const create_trial_signup_dto_1 = require("./dto/create-trial-signup.dto");
 const expire_trial_dto_1 = require("./dto/expire-trial.dto");
 const trial_lessons_service_1 = require("./trial-lessons.service");
@@ -34,8 +34,11 @@ let TrialLessonsController = class TrialLessonsController {
     async getMyStatus(user) {
         return this.trialLessonsService.getMyStatus(user.userId || user.id);
     }
-    async bookDates(user, bookTrialDatesDto) {
-        return this.trialLessonsService.bookDates(user.userId || user.id, bookTrialDatesDto.dates);
+    async bookDate(user, bookTrialDateDto) {
+        return this.trialLessonsService.bookDate(user.userId || user.id, bookTrialDateDto.date);
+    }
+    async cancelLesson(user, lessonId) {
+        return this.trialLessonsService.cancelLesson(user.userId || user.id, lessonId);
     }
     async rescheduleLesson(user, lessonId, newDate) {
         return this.trialLessonsService.rescheduleLesson(user.userId || user.id, lessonId, newDate);
@@ -93,14 +96,25 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.Post)('book-dates'),
-    (0, swagger_1.ApiOperation)({ summary: 'Book trial lesson dates for the authenticated member' }),
+    (0, common_1.Post)('book-date'),
+    (0, swagger_1.ApiOperation)({ summary: 'Book a single trial lesson date for the authenticated member' }),
     __param(0, (0, auth_decorators_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, book_trial_dates_dto_1.BookTrialDatesDto]),
+    __metadata("design:paramtypes", [Object, book_trial_date_dto_1.BookTrialDateDto]),
     __metadata("design:returntype", Promise)
-], TrialLessonsController.prototype, "bookDates", null);
+], TrialLessonsController.prototype, "bookDate", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Delete)('lessons/:lessonId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Cancel an upcoming trial lesson' }),
+    __param(0, (0, auth_decorators_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('lessonId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], TrialLessonsController.prototype, "cancelLesson", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),

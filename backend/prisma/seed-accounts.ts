@@ -40,7 +40,7 @@ const ACCOUNTS: TestAccount[] = [
     trial: {
       status: 'ACTIVE',
       startDate: now,
-      endDate: new Date(now.getTime() + 14 * DAY_MS),
+      endDate: new Date(now.getTime() + 21 * DAY_MS),
     },
   },
   {

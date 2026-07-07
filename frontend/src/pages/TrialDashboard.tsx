@@ -9,10 +9,9 @@ export default function TrialDashboard() {
   const { user, logout, accessToken } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [trialStatus, setTrialStatus] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'book-dates' | 'lessons'>(
+  const [activeTab, setActiveTab] = useState<'overview' | 'book-date' | 'lessons'>(
     'overview'
   );
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completionChoice, setCompletionChoice] = useState<'convert' | 'decline' | null>(
     null
@@ -49,7 +48,14 @@ export default function TrialDashboard() {
       const trialEndDate = status?.trialEndDate || member?.trialEndDate;
       const fallbackStartDate = new Date();
       const fallbackEndDate = new Date();
-      fallbackEndDate.setDate(fallbackEndDate.getDate() + 14);
+      fallbackEndDate.setDate(fallbackEndDate.getDate() + 21);
+
+      const daysLeft = Math.max(
+        0,
+        Math.ceil(
+          (new Date(trialEndDate || fallbackEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        )
+      );
 
       const normalizedStatus = {
         ...status,
@@ -65,7 +71,8 @@ export default function TrialDashboard() {
             status?.status === 'COMPLETED' ||
             member?.trialStatus === 'COMPLETED' ||
             member?.trialStatus === 'DECLINED' ||
-            member?.trialStatus === 'EXPIRED'
+            member?.trialStatus === 'EXPIRED' ||
+            daysLeft <= 0
         ),
         trialStatus: status?.status || member?.trialStatus || 'ACTIVE',
       };
@@ -87,28 +94,56 @@ export default function TrialDashboard() {
     }
   };
 
-  const handleBookDates = async () => {
-    if (selectedDates.length !== 3) {
-      alert('Je moet exact 3 datums kiezen');
-      return;
-    }
-
+  const handleBookDate = async (date: string) => {
     try {
-      await trialApi.bookDates(token, selectedDates);
-      alert('Datums succesvol geboekt!');
+      await trialApi.bookDate(token, date);
       await fetchTrialStatus();
-      setSelectedDates([]);
       setActiveTab('lessons');
     } catch (error: any) {
       alert(
         error.response?.data?.message ||
-          'Er is een fout opgetreden bij het boeken van datums'
+          'Er is een fout opgetreden bij het inplannen van deze proefles'
       );
     }
   };
 
+  const handleCancelLesson = async (lessonId: string) => {
+    if (!confirm('Weet je zeker dat je deze proefles wilt annuleren?')) return;
+    try {
+      await trialApi.cancelLesson(token, lessonId);
+      await fetchTrialStatus();
+    } catch (error: any) {
+      alert(
+        error.response?.data?.message || 'Er is een fout opgetreden bij het annuleren'
+      );
+    }
+  };
+
+  const getAvailableTuesdays = (trialEndDate: string, bookedDates: string[]) => {
+    const result: string[] = [];
+    const end = new Date(trialEndDate);
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+    cursor.setDate(cursor.getDate() + 1);
+    while (cursor.getDay() !== 2) {
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    while (cursor.getTime() <= end.getTime()) {
+      const iso = cursor.toISOString().split('T')[0];
+      if (!bookedDates.includes(iso)) {
+        result.push(iso);
+      }
+      cursor.setDate(cursor.getDate() + 7);
+    }
+    return result;
+  };
+
   const handleConvertToMember = () => {
     navigate('/word-lid');
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
   };
 
   const handleDeclineMembership = async () => {
@@ -150,6 +185,25 @@ export default function TrialDashboard() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow-lg p-8 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={handleBackToHome}
+              className="text-green-100 hover:text-white text-sm font-semibold underline"
+            >
+              ← Terug naar home
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+            >
+              Uitloggen
+            </button>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">🎾 Mijn Proeflessen</h1>
@@ -168,7 +222,7 @@ export default function TrialDashboard() {
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">📅 Geboekte Lessen</h3>
             <p className="text-3xl font-bold text-green-600">
-              {trialStatus.lessonCount}/3
+              {trialStatus.lessonCount}
             </p>
             <p className="text-xs text-gray-500 mt-2">proeflessen geboekt</p>
           </div>
@@ -177,7 +231,7 @@ export default function TrialDashboard() {
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">✅ Voltooid</h3>
             <p className="text-3xl font-bold text-blue-600">
-              {trialStatus.completedLessons}/3
+              {trialStatus.completedLessons}
             </p>
             <p className="text-xs text-gray-500 mt-2">lessen afgerond</p>
           </div>
@@ -186,11 +240,11 @@ export default function TrialDashboard() {
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">🎯 Status</h3>
             <p className="text-2xl font-bold text-purple-600">
-              {trialStatus.isTrialEnded ? '🔴 Afgelopen' : '🟢 Actief'}
+              {trialStatus.isTrialEnded ? '🔴 Verlopen' : '🟢 Actief'}
             </p>
             <p className="text-xs text-gray-500 mt-2">
               {trialStatus.isTrialEnded
-                ? 'Je proeflessen zijn voorbij'
+                ? 'Je proefperiode is verlopen'
                 : 'Je bent nog aan het proberen'}
             </p>
           </div>
@@ -208,16 +262,16 @@ export default function TrialDashboard() {
           >
             📋 Overzicht
           </button>
-          {!trialStatus.lessonCount && (
+          {!trialStatus.isTrialEnded && (
             <button
-              onClick={() => setActiveTab('book-dates')}
+              onClick={() => setActiveTab('book-date')}
               className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                activeTab === 'book-dates'
+                activeTab === 'book-date'
                   ? 'border-green-600 text-green-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              📅 Datums Kiezen
+              📅 Les Inplannen
             </button>
           )}
           {trialStatus.lessonCount > 0 && (
@@ -242,117 +296,100 @@ export default function TrialDashboard() {
                 ✨ Welkom bij je gratis proeflessen!
               </h3>
               <p className="text-green-800 mb-3">
-                Je hebt 3 gratis pickleball sessies waarvoor je geen betaling hoeft te doen. Na de
+                Je kunt tot 21 dagen na aanmelding gratis proeflessen inplannen op dinsdagavond. Na de
                 proeflessen kun je beslissen of je lid wilt worden.
               </p>
               <ul className="text-green-800 space-y-1 text-sm">
-                <li>✓ 3 gratis sessies</li>
+                <li>✓ Gratis proeflessen, elke dinsdag 19:30 - 21:30 uur</li>
                 <li>✓ Materiaal inbegrepen (paddle, ballen)</li>
                 <li>✓ Begeleiding van trainers</li>
                 <li>✓ Geen verplichting</li>
               </ul>
             </div>
 
-            {!trialStatus.lessonCount ? (
+            {!trialStatus.isTrialEnded && (
               <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
                 <h3 className="text-lg font-bold text-yellow-900 mb-2">📅 Volgende Stap</h3>
                 <p className="text-yellow-800 mb-4">
-                  Je moet nog <strong>3 datums kiezen</strong> voor je proeflessen. Je hebt tot{' '}
-                  <strong>{daysLeft} dagen</strong> om dit in te plannen.
+                  Plan een proefles in op een beschikbare dinsdag. Je hebt tot{' '}
+                  <strong>{daysLeft} dagen</strong> om dit te doen.
                 </p>
                 <button
-                  onClick={() => setActiveTab('book-dates')}
+                  onClick={() => setActiveTab('book-date')}
                   className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
                 >
-                  Kies nu je datums →
+                  Plan een proefles in →
                 </button>
-              </div>
-            ) : (
-              <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">✅ Datums Geboekt!</h3>
-                <p className="text-blue-800 mb-4">
-                  Je hebt {trialStatus.lessonCount} lessen gekozen. Je ontvangt reminders voordat de les begint.
-                </p>
               </div>
             )}
 
             <div className="bg-gray-50 p-6 rounded border border-gray-200">
               <h3 className="text-lg font-bold text-gray-900 mb-3">📍 Locatie</h3>
               <p className="text-gray-700 mb-2">
-                <strong>Sporthal Almere</strong>
+                <strong>Sportcomplex Almere</strong>
               </p>
-              <p className="text-gray-700 mb-2">Bataviaplein 60</p>
-              <p className="text-gray-700 mb-4">1315 EH Almere</p>
+              <p className="text-gray-700 mb-2">Parkwerf 138</p>
+              <p className="text-gray-700 mb-4">1354 EB Almere</p>
               <p className="text-gray-600 text-sm">
-                Meld je 15 minuten voor het begin van de les aan bij de receptie.
+                Meld je 15 minuten voor het begin van de les aan bij de beheerder van het sportcomplex.
               </p>
             </div>
           </div>
         )}
 
-        {activeTab === 'book-dates' && !trialStatus.lessonCount && (
+        {activeTab === 'book-date' && !trialStatus.isTrialEnded && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Kies 3 Proeflessen Datums</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Plan een Proefles In</h2>
 
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800">
-                <strong>Tip:</strong> Kies datums op verschillende weken zodat je tijd hebt om de sport
-                goed te leren kennen. Lessen starten altijd om 18:00 uur (18.00 uur - 19.00 uur).
+                <strong>Let op:</strong> Proeflessen zijn elke dinsdag van 19:30 tot 21:30 uur. Kies
+                hieronder een beschikbare dinsdag binnen je proefperiode.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mb-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Les {i} - Kies een datum
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedDates[i - 1] || ''}
-                    onChange={(e) => {
-                      const newDates = [...selectedDates];
-                      newDates[i - 1] = e.target.value;
-                      setSelectedDates(newDates.filter((d) => d));
-                    }}
-                    min={new Date().toISOString().split('T')[0]}
-                    max={trialStatus.trialEndDate?.split('T')[0]}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                  {selectedDates[i - 1] && (
-                    <p className="text-sm text-green-600 mt-1">
-                      ✓ {new Date(selectedDates[i - 1]).toLocaleDateString('nl-NL', {
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                      })}{' '}
-                      om 18:00 uur
-                    </p>
-                  )}
+            {(() => {
+              const bookedDates = (trialStatus.lessons || []).map((l: any) =>
+                new Date(l.scheduledDate).toISOString().split('T')[0]
+              );
+              const availableTuesdays = getAvailableTuesdays(trialStatus.trialEndDate, bookedDates);
+
+              if (availableTuesdays.length === 0) {
+                return (
+                  <p className="text-gray-600">
+                    Er zijn geen beschikbare dinsdagen meer binnen je proefperiode.
+                  </p>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {availableTuesdays.map((date) => (
+                    <div
+                      key={date}
+                      className="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
+                    >
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                          })}
+                        </p>
+                        <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
+                      </div>
+                      <button
+                        onClick={() => handleBookDate(date)}
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                      >
+                        Inschrijven
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                onClick={handleBookDates}
-                disabled={selectedDates.length !== 3}
-                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-              >
-                Bevestig Mijn Datums
-              </button>
-              <button
-                onClick={() => setSelectedDates([])}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-gray-700 transition-colors"
-              >
-                Reset
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-600 mt-4">
-              Je datums moeten binnen 14 dagen vanaf je aanmeldingsdatum liggen (tot{' '}
-              {trialStatus.trialEndDate?.split('T')[0]}).
-            </p>
+              );
+            })()}
           </div>
         )}
 
@@ -361,46 +398,64 @@ export default function TrialDashboard() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Mijn Geboekte Lessen</h2>
 
             <div className="space-y-4">
-              {trialStatus.lessons.map((lesson: any, idx: number) => (
-                <div
-                  key={lesson.id}
-                  className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">
-                        {lesson.status === 'COMPLETED' ? '✅' : '📅'} Proefles {idx + 1}
-                      </h3>
-                      <p className="text-gray-600 mt-2">
-                        {new Date(lesson.scheduledDate).toLocaleDateString('nl-NL', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}{' '}
-                        om {lesson.scheduledTime}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          lesson.status === 'COMPLETED'
-                            ? 'bg-green-100 text-green-800'
-                            : lesson.status === 'SCHEDULED'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {lesson.status === 'SCHEDULED'
-                          ? '🟢 Gepland'
-                          : lesson.status === 'COMPLETED'
-                            ? '✅ Voltooid'
-                            : 'Geannuleerd'}
-                      </span>
+              {trialStatus.lessons.map((lesson: any, idx: number) => {
+                const scheduledDate = new Date(lesson.scheduledDate);
+                const isPast = scheduledDate.getTime() <= Date.now();
+                const displayStatus = lesson.completed
+                  ? 'COMPLETED'
+                  : isPast
+                    ? 'PAST'
+                    : 'SCHEDULED';
+
+                return (
+                  <div
+                    key={lesson.id}
+                    className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">
+                          {displayStatus === 'COMPLETED' ? '✅' : '📅'} Proefles {idx + 1}
+                        </h3>
+                        <p className="text-gray-600 mt-2">
+                          {scheduledDate.toLocaleDateString('nl-NL', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}{' '}
+                          om 19:30 - 21:30 uur
+                        </p>
+                      </div>
+                      <div className="text-right space-y-2">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                            displayStatus === 'COMPLETED'
+                              ? 'bg-green-100 text-green-800'
+                              : displayStatus === 'SCHEDULED'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {displayStatus === 'SCHEDULED'
+                            ? '🟢 Gepland'
+                            : displayStatus === 'COMPLETED'
+                              ? '✅ Voltooid'
+                              : '⏳ Verstreken'}
+                        </span>
+                        {displayStatus === 'SCHEDULED' && (
+                          <button
+                            onClick={() => handleCancelLesson(lesson.id)}
+                            className="block text-sm text-red-600 hover:text-red-800 font-semibold underline"
+                          >
+                            Annuleren
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

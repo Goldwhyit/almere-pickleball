@@ -13,9 +13,32 @@ exports.TrialLessonsService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = require("bcrypt");
 const prisma_service_1 = require("../prisma/prisma.service");
+const TRIAL_DURATION_DAYS = 21;
+const TRIAL_LESSON_WEEKDAY = 2;
 let TrialLessonsService = class TrialLessonsService {
     constructor(prisma) {
         this.prisma = prisma;
+    }
+    validateTrialSlot(member, dateStr) {
+        const datePart = dateStr.split('T')[0];
+        const date = new Date(`${datePart}T00:00:00`);
+        if (Number.isNaN(date.getTime())) {
+            throw new common_1.BadRequestException('Ongeldige datum');
+        }
+        if (date.getDay() !== TRIAL_LESSON_WEEKDAY) {
+            throw new common_1.BadRequestException('Proeflessen kunnen alleen op dinsdag worden ingepland');
+        }
+        const now = new Date();
+        if (date.getTime() <= now.getTime()) {
+            throw new common_1.BadRequestException('Kies een datum in de toekomst');
+        }
+        if (member.trialStartDate && date.getTime() < member.trialStartDate.getTime()) {
+            throw new common_1.BadRequestException('Deze datum ligt voor de start van je proefperiode');
+        }
+        if (member.trialEndDate && date.getTime() > member.trialEndDate.getTime()) {
+            throw new common_1.BadRequestException('Deze datum valt buiten je proefperiode van 21 dagen');
+        }
+        return date;
     }
     async signup(dto) {
         if (!dto.agreedToTerms) {
@@ -27,7 +50,7 @@ let TrialLessonsService = class TrialLessonsService {
         }
         const hashedPassword = await bcrypt.hash(dto.password, 10);
         const trialStartDate = new Date();
-        const trialEndDate = new Date(trialStartDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+        const trialEndDate = new Date(trialStartDate.getTime() + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000);
         const result = await this.prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
@@ -87,34 +110,45 @@ let TrialLessonsService = class TrialLessonsService {
             trialEndDate: member.trialEndDate,
         };
     }
-    async bookDates(userId, dates) {
-        const member = await this.findMemberByUserId(userId);
-        if (!dates || dates.length === 0) {
-            throw new common_1.BadRequestException('Please provide at least one date');
-        }
-        await this.prisma.trialLesson.deleteMany({
-            where: { memberId: member.id, completed: false },
-        });
-        const lessonData = dates.slice(0, 3).map((date) => ({
-            memberId: member.id,
-            scheduledDate: new Date(date),
-        }));
-        const createdLessons = await this.prisma.trialLesson.createMany({
-            data: lessonData,
-        });
+    async syncLessonsBooked(memberId) {
+        const count = await this.prisma.trialLesson.count({ where: { memberId } });
         await this.prisma.member.update({
-            where: { id: member.id },
-            data: {
-                trialLessonsBooked: lessonData.length,
-                trialLessonsCompleted: 0,
-            },
+            where: { id: memberId },
+            data: { trialLessonsBooked: count },
         });
-        return {
-            success: true,
-            message: 'Trial dates booked successfully',
-            bookedCount: createdLessons.count,
-            lessons: lessonData,
-        };
+    }
+    async bookDate(userId, dateStr) {
+        const member = await this.findMemberByUserId(userId);
+        const date = this.validateTrialSlot(member, dateStr);
+        const existing = await this.prisma.trialLesson.findFirst({
+            where: { memberId: member.id, scheduledDate: date },
+        });
+        if (existing) {
+            throw new common_1.ConflictException('Deze datum is al geboekt');
+        }
+        const lesson = await this.prisma.trialLesson.create({
+            data: { memberId: member.id, scheduledDate: date },
+        });
+        await this.syncLessonsBooked(member.id);
+        return { success: true, message: 'Proefles ingepland', lesson };
+    }
+    async cancelLesson(userId, lessonId) {
+        const member = await this.findMemberByUserId(userId);
+        const lesson = await this.prisma.trialLesson.findFirst({
+            where: { id: lessonId, memberId: member.id },
+        });
+        if (!lesson) {
+            throw new common_1.NotFoundException('Proefles niet gevonden');
+        }
+        if (lesson.completed) {
+            throw new common_1.BadRequestException('Een voltooide les kan niet worden geannuleerd');
+        }
+        if (lesson.scheduledDate.getTime() <= Date.now()) {
+            throw new common_1.BadRequestException('Deze les is al verstreken');
+        }
+        await this.prisma.trialLesson.delete({ where: { id: lessonId } });
+        await this.syncLessonsBooked(member.id);
+        return { success: true, message: 'Proefles geannuleerd' };
     }
     async rescheduleLesson(userId, lessonId, newDate) {
         const member = await this.findMemberByUserId(userId);
@@ -124,9 +158,10 @@ let TrialLessonsService = class TrialLessonsService {
         if (!lesson) {
             throw new common_1.NotFoundException('Trial lesson not found');
         }
+        const date = this.validateTrialSlot(member, newDate);
         const updatedLesson = await this.prisma.trialLesson.update({
             where: { id: lessonId },
-            data: { scheduledDate: new Date(newDate) },
+            data: { scheduledDate: date },
         });
         return { success: true, lesson: updatedLesson };
     }

@@ -392,6 +392,7 @@ model TrialLesson {
   
   member          Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
+  @@unique([memberId, scheduledDate])
   @@map("trial_lessons")
   @@index([memberId, scheduledDate])
 }

@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, Public } from '../common/decorators/auth.decorators';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { BookTrialDatesDto } from './dto/book-trial-dates.dto';
+import { BookTrialDateDto } from './dto/book-trial-date.dto';
 import { CreateTrialSignupDto } from './dto/create-trial-signup.dto';
 import { ExpireTrialDto } from './dto/expire-trial.dto';
 import { TrialLessonsService } from './trial-lessons.service';
@@ -38,10 +38,18 @@ export class TrialLessonsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post('book-dates')
-  @ApiOperation({ summary: 'Book trial lesson dates for the authenticated member' })
-  async bookDates(@CurrentUser() user: any, @Body() bookTrialDatesDto: BookTrialDatesDto) {
-    return this.trialLessonsService.bookDates(user.userId || user.id, bookTrialDatesDto.dates);
+  @Post('book-date')
+  @ApiOperation({ summary: 'Book a single trial lesson date for the authenticated member' })
+  async bookDate(@CurrentUser() user: any, @Body() bookTrialDateDto: BookTrialDateDto) {
+    return this.trialLessonsService.bookDate(user.userId || user.id, bookTrialDateDto.date);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Delete('lessons/:lessonId')
+  @ApiOperation({ summary: 'Cancel an upcoming trial lesson' })
+  async cancelLesson(@CurrentUser() user: any, @Param('lessonId') lessonId: string) {
+    return this.trialLessonsService.cancelLesson(user.userId || user.id, lessonId);
   }
 
   @UseGuards(JwtAuthGuard)

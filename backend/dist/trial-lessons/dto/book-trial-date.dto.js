@@ -9,14 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BookTrialDatesDto = void 0;
+exports.BookTrialDateDto = void 0;
 const class_validator_1 = require("class-validator");
-class BookTrialDatesDto {
+class BookTrialDateDto {
 }
-exports.BookTrialDatesDto = BookTrialDatesDto;
+exports.BookTrialDateDto = BookTrialDateDto;
 __decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    __metadata("design:type", Array)
-], BookTrialDatesDto.prototype, "dates", void 0);
-//# sourceMappingURL=book-trial-dates.dto.js.map
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], BookTrialDateDto.prototype, "date", void 0);
+//# sourceMappingURL=book-trial-date.dto.js.map

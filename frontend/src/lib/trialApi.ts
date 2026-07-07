@@ -43,14 +43,24 @@ export const trialApi = {
   },
 
   /**
-   * Book 3 trial dates
+   * Book a single trial lesson date
    */
-  bookDates: async (token: string, dates: string[]) => {
+  bookDate: async (token: string, date: string) => {
     const response = await api.post(
-      '/trial-lessons/book-dates',
-      { dates },
+      '/trial-lessons/book-date',
+      { date },
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    return response.data;
+  },
+
+  /**
+   * Cancel an upcoming trial lesson
+   */
+  cancelLesson: async (token: string, lessonId: string) => {
+    const response = await api.delete(`/trial-lessons/lessons/${lessonId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
   },
 
