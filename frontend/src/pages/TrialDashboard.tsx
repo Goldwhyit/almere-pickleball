@@ -42,7 +42,10 @@ export default function TrialDashboard() {
         return;
       }
 
-      const status = await trialApi.getMyStatus(token);
+      const [status, lessonsResponse] = await Promise.all([
+        trialApi.getMyStatus(token),
+        trialApi.getMyLessons(token),
+      ]);
       const member = status?.member || status || {};
       const trialStartDate = status?.trialStartDate || member?.trialStartDate;
       const trialEndDate = status?.trialEndDate || member?.trialEndDate;
@@ -63,7 +66,7 @@ export default function TrialDashboard() {
         firstName: member?.firstName || status?.firstName || user?.member?.firstName || 'deelnemer',
         lessonCount: status?.lessonCount ?? status?.lessonsBooked ?? member?.trialLessonsBooked ?? 0,
         completedLessons: status?.completedLessons ?? status?.lessonsCompleted ?? member?.trialLessonsCompleted ?? 0,
-        lessons: status?.lessons || [],
+        lessons: lessonsResponse?.lessons || status?.lessons || [],
         trialStartDate: trialStartDate || fallbackStartDate.toISOString(),
         trialEndDate: trialEndDate || fallbackEndDate.toISOString(),
         isTrialEnded: Boolean(
