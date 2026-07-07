@@ -119,6 +119,9 @@ export default function TrialDashboard() {
     }
   };
 
+  const toLocalDateStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
   const getAvailableTuesdays = (trialEndDate: string, bookedDates: string[]) => {
     const result: string[] = [];
     const end = new Date(trialEndDate);
@@ -129,9 +132,9 @@ export default function TrialDashboard() {
       cursor.setDate(cursor.getDate() + 1);
     }
     while (cursor.getTime() <= end.getTime()) {
-      const iso = cursor.toISOString().split('T')[0];
-      if (!bookedDates.includes(iso)) {
-        result.push(iso);
+      const dateStr = toLocalDateStr(cursor);
+      if (!bookedDates.includes(dateStr)) {
+        result.push(dateStr);
       }
       cursor.setDate(cursor.getDate() + 7);
     }
