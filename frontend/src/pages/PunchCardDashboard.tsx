@@ -11,7 +11,8 @@ export default function PunchCardDashboard() {
   const { user, logout, accessToken } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<any>(null);
-  const [reschedulingId, setReschedulingId] = useState<string | null>(null);
+  const [pickingIndex, setPickingIndex] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState('');
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [upsellDismissed, setUpsellDismissed] = useState(false);
 
@@ -52,6 +53,13 @@ export default function PunchCardDashboard() {
   const toLocalDateStr = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+  const formatDate = (dateStr: string) =>
+    new Date(`${dateStr}T00:00:00`).toLocaleDateString('nl-NL', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+
   const getAvailableDates = (expiryDate: string, bookedDates: string[]) => {
     const result: string[] = [];
     if (!expiryDate) return result;
@@ -72,23 +80,31 @@ export default function PunchCardDashboard() {
     return result;
   };
 
-  const handleBookDate = async (date: string) => {
-    try {
-      await punchCardApi.bookDate(token, date);
-      await fetchStatus();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Er is een fout opgetreden bij het inplannen');
-    }
+  const startPicking = (index: number) => {
+    setPickingIndex(index);
+    setSelectedDate('');
   };
 
-  const handleRescheduleTo = async (date: string) => {
-    if (!reschedulingId) return;
+  const cancelPicking = () => {
+    setPickingIndex(null);
+    setSelectedDate('');
+  };
+
+  const confirmPicking = async (session: any) => {
+    if (!selectedDate) return;
     try {
-      await punchCardApi.rescheduleSession(token, reschedulingId, date);
-      setReschedulingId(null);
+      if (session) {
+        await punchCardApi.rescheduleSession(token, session.id, selectedDate);
+      } else {
+        await punchCardApi.bookDate(token, selectedDate);
+      }
+      cancelPicking();
       await fetchStatus();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Er is een fout opgetreden bij het wijzigen');
+      alert(
+        error.response?.data?.message ||
+          (session ? 'Er is een fout opgetreden bij het wijzigen' : 'Er is een fout opgetreden bij het inplannen')
+      );
     }
   };
 
@@ -159,20 +175,66 @@ export default function PunchCardDashboard() {
         {/* Alles in één venster */}
         <div className="bg-white rounded-lg shadow p-8 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Jouw strippenkaart</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             {Array.from({ length: TOTAL_STRIPS }).map((_, i) => {
               const stripLabel = TOTAL_STRIPS - i;
               const session = sessions[i];
-              if (!session) {
+              const isPicking = pickingIndex === i;
+
+              // Datumkeuze rechtstreeks in het vakje zelf
+              if (isPicking) {
                 return (
                   <div
+                    key={session ? session.id : `empty-${i}`}
+                    className="relative border-2 border-primary-500 bg-primary-50 rounded-lg p-3 flex flex-col items-center justify-center gap-2 min-h-28 col-span-2"
+                  >
+                    <span className="text-xs font-bold text-primary-700">Strip #{stripLabel} — kies datum</span>
+                    <select
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-full text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+                    >
+                      <option value="">Kies een dinsdag/donderdag...</option>
+                      {availableDates.map((date) => (
+                        <option key={date} value={date}>
+                          {formatDate(date)}
+                        </option>
+                      ))}
+                    </select>
+                    {availableDates.length === 0 && (
+                      <p className="text-xs text-gray-600">Geen data meer beschikbaar binnen je geldigheidsperiode.</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => confirmPicking(session)}
+                        disabled={!selectedDate}
+                        className="text-xs bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white font-semibold py-1.5 px-3 rounded transition-colors"
+                      >
+                        Bevestig
+                      </button>
+                      <button
+                        onClick={cancelPicking}
+                        className="text-xs text-gray-600 hover:text-gray-800 underline"
+                      >
+                        Annuleer
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (!session) {
+                return (
+                  <button
                     key={`empty-${i}`}
-                    className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 h-28"
+                    onClick={() => remaining > 0 && startPicking(i)}
+                    disabled={remaining <= 0}
+                    className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 h-28 hover:border-primary-400 hover:text-primary-500 disabled:hover:border-gray-300 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors"
                   >
                     <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{stripLabel}</span>
-                    <span className="text-2xl">—</span>
-                    <span className="text-xs mt-1">Beschikbaar</span>
-                  </div>
+                    <span className="text-2xl">+</span>
+                    <span className="text-xs mt-1">Kies datum</span>
+                  </button>
                 );
               }
 
@@ -196,7 +258,7 @@ export default function PunchCardDashboard() {
                   {!isPast && (
                     <div className="flex gap-2 mt-2">
                       <button
-                        onClick={() => setReschedulingId(session.id)}
+                        onClick={() => startPicking(i)}
                         className="text-xs text-primary-600 hover:text-primary-800 underline"
                       >
                         Wijzigen
@@ -214,49 +276,15 @@ export default function PunchCardDashboard() {
             })}
           </div>
 
-          {/* Datumkeuze, in hetzelfde venster */}
-          {reschedulingId && (
-            <div className="border-t border-gray-200 pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">
-                  Kies een nieuwe datum voor strip #{TOTAL_STRIPS - sessions.findIndex((s: any) => s.id === reschedulingId)}
-                </h3>
-                <button
-                  onClick={() => setReschedulingId(null)}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
-                >
-                  Annuleren
-                </button>
-              </div>
-              <DateList
-                dates={availableDates}
-                onSelect={handleRescheduleTo}
-                stripNumber={TOTAL_STRIPS - sessions.findIndex((s: any) => s.id === reschedulingId)}
-              />
-            </div>
-          )}
-
-          {!reschedulingId && remaining > 0 && (
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Kies een nieuwe datum</h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Strip #{TOTAL_STRIPS - sessions.length} — dinsdag of donderdag, 19:30 - 21:30 uur.
-              </p>
-              <DateList dates={availableDates} onSelect={handleBookDate} stripNumber={TOTAL_STRIPS - sessions.length} />
-            </div>
-          )}
-
-          {!reschedulingId && remaining <= 0 && (
-            <div className="border-t border-gray-200 pt-6">
-              <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
-                <p className="text-yellow-900 font-semibold">Je strippenkaart is op.</p>
-                <button
-                  onClick={() => navigate('/word-lid')}
-                  className="mt-4 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-                >
-                  Nieuwe strippenkaart of ander abonnement kiezen →
-                </button>
-              </div>
+          {remaining <= 0 && (
+            <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
+              <p className="text-yellow-900 font-semibold">Je strippenkaart is op.</p>
+              <button
+                onClick={() => navigate('/word-lid')}
+                className="mt-4 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              >
+                Nieuwe strippenkaart of ander abonnement kiezen →
+              </button>
             </div>
           )}
         </div>
@@ -302,48 +330,6 @@ export default function PunchCardDashboard() {
           </div>
         </Modal>
       )}
-    </div>
-  );
-}
-
-function DateList({
-  dates,
-  onSelect,
-  stripNumber,
-}: {
-  dates: string[];
-  onSelect: (date: string) => void;
-  stripNumber?: number;
-}) {
-  if (dates.length === 0) {
-    return <p className="text-gray-600">Er zijn geen beschikbare datums meer binnen je geldigheidsperiode.</p>;
-  }
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {dates.map((date) => (
-        <div key={date} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-          <div>
-            {stripNumber !== undefined && (
-              <p className="text-xs font-bold text-primary-600 mb-1">Strip #{stripNumber}</p>
-            )}
-            <p className="font-semibold text-gray-900">
-              {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
-            </p>
-            <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
-          </div>
-          <button
-            onClick={() => onSelect(date)}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Kiezen
-          </button>
-        </div>
-      ))}
     </div>
   );
 }
