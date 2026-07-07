@@ -12,7 +12,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MembershipsService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = require("bcrypt");
+const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const MEMBERSHIP_PLAN_ALIASES = {
+    per_session: client_1.MembershipPlan.PER_SESSION,
+    punch_card: client_1.MembershipPlan.PUNCH_CARD,
+    monthly: client_1.MembershipPlan.MONTHLY,
+    yearly: client_1.MembershipPlan.YEARLY,
+    yearly_upfront: client_1.MembershipPlan.YEARLY_UPFRONT,
+};
+function resolveMembershipPlan(membershipType) {
+    if (!membershipType)
+        return client_1.MembershipPlan.PER_SESSION;
+    if (Object.values(client_1.MembershipPlan).includes(membershipType)) {
+        return membershipType;
+    }
+    return MEMBERSHIP_PLAN_ALIASES[membershipType.toLowerCase()] || client_1.MembershipPlan.PER_SESSION;
+}
 let MembershipsService = class MembershipsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -43,7 +59,7 @@ let MembershipsService = class MembershipsService {
                 dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
                 accountType: 'MEMBER',
                 membershipStatus: 'PENDING',
-                membershipPlan: dto.membershipType === 'MONTHLY' ? 'MONTHLY' : 'PER_SESSION',
+                membershipPlan: resolveMembershipPlan(dto.membershipType),
                 trialStatus: 'PENDING',
             },
         });

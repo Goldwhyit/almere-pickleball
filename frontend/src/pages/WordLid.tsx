@@ -296,7 +296,7 @@ export default function WordLid() {
         email: formData.email,
         phone: formData.phone,
         dateOfBirth: formData.dateOfBirth,
-        membershipType: formData.membershipType,
+        membershipType: membershipPrices[selectedType as keyof typeof membershipPrices]?.plan || 'PER_SESSION',
         agreedToTerms: formData.agreedToTerms,
         agreedToPrivacy: formData.agreedToPrivacy,
         newsletter: formData.newsletter ?? false,

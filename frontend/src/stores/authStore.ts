@@ -13,6 +13,8 @@ interface User {
     membershipPlan?: string;
     membershipType?: string;
     accountType?: 'TRIAL' | 'MEMBER' | 'TRIAL_EXPIRED' | 'ADMIN';
+    punchCardRemaining?: number;
+    punchCardExpiryDate?: string;
   };
 }
 

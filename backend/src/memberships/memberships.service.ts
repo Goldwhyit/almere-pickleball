@@ -1,7 +1,24 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { MembershipPlan } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApplyMembershipDto } from './dto/apply-membership.dto';
+
+const MEMBERSHIP_PLAN_ALIASES: Record<string, MembershipPlan> = {
+  per_session: MembershipPlan.PER_SESSION,
+  punch_card: MembershipPlan.PUNCH_CARD,
+  monthly: MembershipPlan.MONTHLY,
+  yearly: MembershipPlan.YEARLY,
+  yearly_upfront: MembershipPlan.YEARLY_UPFRONT,
+};
+
+function resolveMembershipPlan(membershipType?: string): MembershipPlan {
+  if (!membershipType) return MembershipPlan.PER_SESSION;
+  if ((Object.values(MembershipPlan) as string[]).includes(membershipType)) {
+    return membershipType as MembershipPlan;
+  }
+  return MEMBERSHIP_PLAN_ALIASES[membershipType.toLowerCase()] || MembershipPlan.PER_SESSION;
+}
 
 @Injectable()
 export class MembershipsService {
@@ -37,7 +54,7 @@ export class MembershipsService {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
         accountType: 'MEMBER',
         membershipStatus: 'PENDING',
-        membershipPlan: dto.membershipType === 'MONTHLY' ? 'MONTHLY' : 'PER_SESSION',
+        membershipPlan: resolveMembershipPlan(dto.membershipType),
         trialStatus: 'PENDING',
       },
     });
