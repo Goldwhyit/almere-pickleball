@@ -166,8 +166,9 @@ export default function PunchCardDashboard() {
                 return (
                   <div
                     key={`empty-${i}`}
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 h-28"
+                    className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 h-28"
                   >
+                    <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{i + 1}</span>
                     <span className="text-2xl">—</span>
                     <span className="text-xs mt-1">Beschikbaar</span>
                   </div>
@@ -180,10 +181,11 @@ export default function PunchCardDashboard() {
               return (
                 <div
                   key={session.id}
-                  className={`rounded-lg p-4 flex flex-col items-center justify-center text-center h-28 ${
+                  className={`relative rounded-lg p-4 flex flex-col items-center justify-center text-center h-28 ${
                     isPast ? 'bg-gray-100 border border-gray-200' : 'bg-green-50 border-2 border-green-500'
                   }`}
                 >
+                  <span className="absolute top-2 left-2 text-xs font-bold text-gray-400">#{i + 1}</span>
                   <span className="text-xs font-semibold text-gray-500">
                     {isPast ? '✅ Genomen' : '🟢 Gepland'}
                   </span>
@@ -224,7 +226,11 @@ export default function PunchCardDashboard() {
                 Annuleren
               </button>
             </div>
-            <DateList dates={availableDates} onSelect={handleRescheduleTo} />
+            <DateList
+              dates={availableDates}
+              onSelect={handleRescheduleTo}
+              stripNumber={sessions.findIndex((s: any) => s.id === reschedulingId) + 1}
+            />
           </div>
         )}
 
@@ -234,7 +240,7 @@ export default function PunchCardDashboard() {
             <p className="text-sm text-gray-600 mb-6">
               Kies een beschikbare dinsdag of donderdag, 19:30 - 21:30 uur.
             </p>
-            <DateList dates={availableDates} onSelect={handleBookDate} />
+            <DateList dates={availableDates} onSelect={handleBookDate} startNumber={sessions.length + 1} />
           </div>
         )}
 
@@ -295,33 +301,49 @@ export default function PunchCardDashboard() {
   );
 }
 
-function DateList({ dates, onSelect }: { dates: string[]; onSelect: (date: string) => void }) {
+function DateList({
+  dates,
+  onSelect,
+  startNumber,
+  stripNumber,
+}: {
+  dates: string[];
+  onSelect: (date: string) => void;
+  startNumber?: number;
+  stripNumber?: number;
+}) {
   if (dates.length === 0) {
     return <p className="text-gray-600">Er zijn geen beschikbare datums meer binnen je geldigheidsperiode.</p>;
   }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {dates.map((date) => (
-        <div key={date} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-gray-900">
-              {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
-            </p>
-            <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
+      {dates.map((date, index) => {
+        const number = stripNumber ?? (startNumber !== undefined ? startNumber + index : undefined);
+        return (
+          <div key={date} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+            <div>
+              {number !== undefined && (
+                <p className="text-xs font-bold text-primary-600 mb-1">Strip #{number}</p>
+              )}
+              <p className="font-semibold text-gray-900">
+                {new Date(`${date}T00:00:00`).toLocaleDateString('nl-NL', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                })}
+              </p>
+              <p className="text-sm text-gray-600">19:30 - 21:30 uur</p>
+            </div>
+            <button
+              onClick={() => onSelect(date)}
+              className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              Kiezen
+            </button>
           </div>
-          <button
-            onClick={() => onSelect(date)}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Kiezen
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
