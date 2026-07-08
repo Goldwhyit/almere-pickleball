@@ -26,4 +26,12 @@ export const membershipsAPI = {
     const res = await api.patch(`/memberships/${membershipId}/mark-paid`);
     return res.data;
   },
+  setRenewalChoice: async (membershipId: string, choice: 'YEARLY' | 'YEARLY_UPFRONT') => {
+    const res = await api.post(`/memberships/${membershipId}/renewal-choice`, { choice });
+    return res.data;
+  },
+  processRenewal: async (membershipId: string) => {
+    const res = await api.patch(`/memberships/${membershipId}/process-renewal`);
+    return res.data;
+  },
 };

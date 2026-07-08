@@ -267,7 +267,7 @@ export default function MembersDashboard() {
                          'Jaar Vooruit'}
                       </span>
                     )}
-                    {editId !== m.id && m.membershipPlan === 'MONTHLY' && m.memberships?.[0]?.currentPeriodEnd &&
+                    {editId !== m.id && (m.membershipPlan === 'MONTHLY' || m.membershipPlan === 'YEARLY') && m.memberships?.[0]?.currentPeriodEnd &&
                       new Date(m.memberships[0].currentPeriodEnd).getTime() <= Date.now() && (
                         <div className="mt-1 flex items-center gap-2">
                           <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold animate-pulse">
@@ -281,6 +281,25 @@ export default function MembersDashboard() {
                             }}
                           >
                             Markeer betaald
+                          </button>
+                        </div>
+                      )}
+                    {editId !== m.id && m.membershipPlan === 'YEARLY_UPFRONT' && m.memberships?.[0] &&
+                      (m.memberships[0].pendingRenewalChoice ||
+                        (m.memberships[0].endDate &&
+                          new Date(m.memberships[0].endDate).getTime() - Date.now() <= 30 * 24 * 60 * 60 * 1000)) && (
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold animate-pulse">
+                            ⚠️ Verlenging openstaand
+                          </span>
+                          <button
+                            className="text-xs text-blue-600 hover:text-blue-800 font-semibold underline"
+                            onClick={async () => {
+                              await membershipsAPI.processRenewal(m.memberships[0].id);
+                              fetchMembers();
+                            }}
+                          >
+                            Verwerk verlenging
                           </button>
                         </div>
                       )}

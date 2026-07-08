@@ -22,10 +22,22 @@ const MEMBERSHIP_PLAN_ALIASES = {
     yearly_upfront: client_1.MembershipPlan.YEARLY_UPFRONT,
 };
 const MONTHLY_PRICE = 15.75;
+const YEARLY_MONTHLY_INSTALLMENT_PRICE = 15.58;
+const YEARLY_PRICE = 187;
+const YEARLY_UPFRONT_PRICE = 168;
+const DUE_SOON_DAYS = 5;
+const RENEWAL_DUE_DAYS = 30;
 function addMonths(date, months) {
     const result = new Date(date.getTime());
     result.setMonth(result.getMonth() + months);
     return result;
+}
+function monthsBetween(from, to) {
+    let months = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+    if (to.getDate() < from.getDate()) {
+        months -= 1;
+    }
+    return Math.max(0, months);
 }
 function resolveMembershipPlan(membershipType) {
     if (!membershipType)
@@ -51,6 +63,8 @@ let MembershipsService = class MembershipsService {
         const membershipPlan = resolveMembershipPlan(dto.membershipType);
         const isPunchCard = membershipPlan === client_1.MembershipPlan.PUNCH_CARD;
         const isMonthly = membershipPlan === client_1.MembershipPlan.MONTHLY;
+        const isYearly = membershipPlan === client_1.MembershipPlan.YEARLY;
+        const isYearlyUpfront = membershipPlan === client_1.MembershipPlan.YEARLY_UPFRONT;
         const now = new Date();
         const user = await this.prisma.user.create({
             data: {
@@ -75,6 +89,19 @@ let MembershipsService = class MembershipsService {
                     currentPeriodEnd: addMonths(now, 1),
                     status: 'ACTIVE',
                     autoRenew: true,
+                },
+            });
+        }
+        if (isYearly || isYearlyUpfront) {
+            await this.prisma.membership.create({
+                data: {
+                    memberId: member.id,
+                    plan: membershipPlan,
+                    startDate: now,
+                    endDate: addMonths(now, 12),
+                    currentPeriodEnd: isYearly ? addMonths(now, 1) : null,
+                    status: 'ACTIVE',
+                    autoRenew: isYearly,
                 },
             });
         }
@@ -107,12 +134,26 @@ let MembershipsService = class MembershipsService {
         }
         const membership = member.memberships[0] || null;
         const isPaymentOutstanding = Boolean((membership === null || membership === void 0 ? void 0 : membership.currentPeriodEnd) && membership.currentPeriodEnd.getTime() <= Date.now());
+        const daysUntil = (date) => Math.ceil((date.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+        const isPaymentDueSoon = Boolean((membership === null || membership === void 0 ? void 0 : membership.plan) === client_1.MembershipPlan.YEARLY &&
+            membership.currentPeriodEnd &&
+            daysUntil(membership.currentPeriodEnd) <= DUE_SOON_DAYS);
+        const isRenewalDue = Boolean((membership === null || membership === void 0 ? void 0 : membership.plan) === client_1.MembershipPlan.YEARLY_UPFRONT &&
+            ((membership.endDate && daysUntil(membership.endDate) <= RENEWAL_DUE_DAYS) ||
+                membership.pendingRenewalChoice));
+        const remainingMonths = (membership === null || membership === void 0 ? void 0 : membership.endDate) ? monthsBetween(new Date(), membership.endDate) : null;
         return {
             success: true,
             member,
             membership,
             isPaymentOutstanding,
+            isPaymentDueSoon,
+            isRenewalDue,
+            remainingMonths,
             monthlyPrice: MONTHLY_PRICE,
+            yearlyMonthlyInstallmentPrice: YEARLY_MONTHLY_INSTALLMENT_PRICE,
+            yearlyPrice: YEARLY_PRICE,
+            yearlyUpfrontPrice: YEARLY_UPFRONT_PRICE,
         };
     }
     async markPaymentReceived(membershipId) {
@@ -123,6 +164,11 @@ let MembershipsService = class MembershipsService {
         const baseDate = membership.currentPeriodEnd && membership.currentPeriodEnd.getTime() > Date.now()
             ? membership.currentPeriodEnd
             : new Date();
+        const isYearlyInstallment = membership.plan === client_1.MembershipPlan.YEARLY;
+        const amount = isYearlyInstallment ? YEARLY_MONTHLY_INSTALLMENT_PRICE : MONTHLY_PRICE;
+        const description = isYearlyInstallment
+            ? 'Maandelijkse termijn jaarabonnement'
+            : 'Maandelijkse contributie';
         const [updatedMembership] = await this.prisma.$transaction([
             this.prisma.membership.update({
                 where: { id: membershipId },
@@ -132,11 +178,66 @@ let MembershipsService = class MembershipsService {
                 data: {
                     memberId: membership.memberId,
                     membershipId: membership.id,
-                    amount: MONTHLY_PRICE,
+                    amount,
                     paymentMethod: 'TRANSFER',
                     status: 'COMPLETED',
-                    description: 'Maandelijkse contributie',
+                    description,
                 },
+            }),
+        ]);
+        return { success: true, membership: updatedMembership };
+    }
+    async setRenewalChoice(userId, membershipId, choice) {
+        if (choice !== client_1.MembershipPlan.YEARLY && choice !== client_1.MembershipPlan.YEARLY_UPFRONT) {
+            throw new common_1.BadRequestException('Ongeldige keuze');
+        }
+        const member = await this.prisma.member.findUnique({ where: { userId } });
+        const membership = await this.prisma.membership.findUnique({ where: { id: membershipId } });
+        if (!membership || !member || membership.memberId !== member.id) {
+            throw new common_1.NotFoundException('Membership niet gevonden');
+        }
+        const updated = await this.prisma.membership.update({
+            where: { id: membershipId },
+            data: { pendingRenewalChoice: choice },
+        });
+        return { success: true, membership: updated };
+    }
+    async processRenewal(membershipId) {
+        const membership = await this.prisma.membership.findUnique({ where: { id: membershipId } });
+        if (!membership) {
+            throw new common_1.NotFoundException('Membership niet gevonden');
+        }
+        const newPlan = membership.pendingRenewalChoice || membership.plan;
+        const isYearly = newPlan === client_1.MembershipPlan.YEARLY;
+        const amount = isYearly ? YEARLY_PRICE : YEARLY_UPFRONT_PRICE;
+        const baseDate = membership.endDate && membership.endDate.getTime() > Date.now()
+            ? membership.endDate
+            : new Date();
+        const newEndDate = addMonths(baseDate, 12);
+        const now = new Date();
+        const [updatedMembership] = await this.prisma.$transaction([
+            this.prisma.membership.update({
+                where: { id: membershipId },
+                data: {
+                    plan: newPlan,
+                    endDate: newEndDate,
+                    currentPeriodEnd: isYearly ? addMonths(now, 1) : null,
+                    pendingRenewalChoice: null,
+                },
+            }),
+            this.prisma.payment.create({
+                data: {
+                    memberId: membership.memberId,
+                    membershipId: membership.id,
+                    amount,
+                    paymentMethod: 'TRANSFER',
+                    status: 'COMPLETED',
+                    description: isYearly ? 'Verlenging jaarabonnement (maandelijks)' : 'Verlenging jaarabonnement (ineens)',
+                },
+            }),
+            this.prisma.member.update({
+                where: { id: membership.memberId },
+                data: { membershipPlan: newPlan },
             }),
         ]);
         return { success: true, membership: updatedMembership };

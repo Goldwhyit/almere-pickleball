@@ -39,6 +39,12 @@ let MembershipsController = class MembershipsController {
     async markPaid(membershipId) {
         return this.membershipsService.markPaymentReceived(membershipId);
     }
+    async setRenewalChoice(user, membershipId, choice) {
+        return this.membershipsService.setRenewalChoice(user.userId || user.id, membershipId, choice);
+    }
+    async processRenewal(membershipId) {
+        return this.membershipsService.processRenewal(membershipId);
+    }
 };
 exports.MembershipsController = MembershipsController;
 __decorate([
@@ -87,6 +93,27 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MembershipsController.prototype, "markPaid", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Post)(':membershipId/renewal-choice'),
+    __param(0, (0, auth_decorators_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('membershipId')),
+    __param(2, (0, common_1.Body)('choice')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], MembershipsController.prototype, "setRenewalChoice", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, auth_decorators_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Patch)(':membershipId/process-renewal'),
+    __param(0, (0, common_1.Param)('membershipId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MembershipsController.prototype, "processRenewal", null);
 exports.MembershipsController = MembershipsController = __decorate([
     (0, swagger_1.ApiTags)('Memberships'),
     (0, common_1.Controller)('memberships'),

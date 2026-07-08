@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { membershipsAPI } from '../lib/membershipsApi';
+import { settingsApi } from '../lib/settingsApi';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -198,18 +199,28 @@ export default function WordLid() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showHuisregels, setShowHuisregels] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [discountPercentage, setDiscountPercentage] = useState('10');
+
+  useEffect(() => {
+    settingsApi
+      .getSetting('yearly_discount_percentage')
+      .then((res) => {
+        if (res.value) setDiscountPercentage(res.value);
+      })
+      .catch(() => {});
+  }, []);
 
   const membershipPrices = {
-    yearly: { 
-      price: 187, 
-      label: 'Jaarlidmaatschap', 
+    yearly: {
+      price: 187,
+      label: 'Jaarlidmaatschap',
       description: '€187 per jaar - betaal per maand €15,58',
       plan: 'YEARLY'
     },
-    yearly_upfront: { 
-      price: 168, 
-      label: 'Jaarlidmaatschap ineens', 
-      description: '€168 ineens betalen (10% korting)',
+    yearly_upfront: {
+      price: 168,
+      label: 'Jaarlidmaatschap ineens',
+      description: `€168 ineens betalen (${discountPercentage}% korting)`,
       plan: 'YEARLY_UPFRONT'
     },
     monthly: { 
@@ -427,7 +438,7 @@ export default function WordLid() {
                   />
                   {isYearlyUpfront && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      10% KORTING
+                      {discountPercentage}% KORTING
                     </div>
                   )}
                   <div className="mb-4">

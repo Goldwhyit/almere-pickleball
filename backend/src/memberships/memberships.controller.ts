@@ -47,4 +47,23 @@ export class MembershipsController {
   async markPaid(@Param('membershipId') membershipId: string) {
     return this.membershipsService.markPaymentReceived(membershipId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post(':membershipId/renewal-choice')
+  async setRenewalChoice(
+    @CurrentUser() user: any,
+    @Param('membershipId') membershipId: string,
+    @Body('choice') choice: string,
+  ) {
+    return this.membershipsService.setRenewalChoice(user.userId || user.id, membershipId, choice as any);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @Patch(':membershipId/process-renewal')
+  async processRenewal(@Param('membershipId') membershipId: string) {
+    return this.membershipsService.processRenewal(membershipId);
+  }
 }

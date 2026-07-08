@@ -42,6 +42,10 @@ export default function Dashboard() {
     return <Navigate to="/monthly-dashboard" replace />;
   }
 
+  if (membershipPlan === 'YEARLY' || membershipPlan === 'YEARLY_UPFRONT') {
+    return <Navigate to="/yearly-dashboard" replace />;
+  }
+
   const membershipPlanLabel = membershipPlan
     ? MEMBERSHIP_PLAN_LABELS[membershipPlan] || membershipPlan
     : 'Onbekend';

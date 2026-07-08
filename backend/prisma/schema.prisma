@@ -165,6 +165,7 @@ model Membership {
   startDate     DateTime        @default(now())
   endDate       DateTime?
   currentPeriodEnd DateTime?
+  pendingRenewalChoice MembershipPlan?
   status        MembershipStatus @default(ACTIVE)
   autoRenew     Boolean         @default(false)
   createdAt     DateTime        @default(now())
