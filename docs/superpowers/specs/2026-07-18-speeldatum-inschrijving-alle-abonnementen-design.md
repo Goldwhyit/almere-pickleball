@@ -65,16 +65,16 @@ Validatielogica in de service:
 - `PunchCardSession` (label "Strippenkaart")
 - `PlayDayRegistration` (label volgens `membershipPlan`-snapshot: Maand/Jaar/Per-sessie)
 
-tot één lijst met de vorm die `PlayDaysAdminPanel.tsx` al verwacht (`member`, `membershipPlan`, `paymentCompleted`, `registeredAt`). Elke rij wordt getagd op basis van de bron-tabel, niet op basis van het (mogelijk verouderde) `member.membershipPlan`-veld — dat veld staat bij Proefles-leden bijvoorbeeld altijd op `PER_SESSION`, wat een verkeerd label zou geven.
+tot één lijst met de vorm die `PlayDaysAdminPanel.tsx` al verwacht (`member`, `membershipPlan`, `paymentCompleted`, `registeredAt`). Elke rij wordt getagd op basis van de bron-tabel, niet op basis van het (mogelijk verouderde) `member.membershipPlan`-veld — dat veld staat bij Proefles-leden bijvoorbeeld altijd op `PER_SESSION`, wat een verkeerd label zou geven. `PlayDaysAdminPanel.tsx` krijgt er daarom ook een `TRIAL`-label/kleur aan toe.
 
-`PATCH /members/play-days/:id/payment-complete` (al aangeroepen door `PlayDayPaymentModal`) wordt geïmplementeerd: zet `paymentStatus` op `COMPLETED` voor de gegeven `PlayDayRegistration`-id.
+De bestaande `PATCH /members/play-days/:id/payment-complete` (losstaand admin-endpoint om een betaling achteraf te markeren) wordt **niet** gebouwd: omdat Per-sessie een directe betaalstap bij inschrijven krijgt (zie hieronder), wordt `paymentStatus` altijd al bij aanmaken op `COMPLETED` gezet en is er geen "openstaande betaling" toestand die een admin achteraf zou moeten afhandelen. `memberAPI.completePlayDayPayment` in de frontend blijft ongebruikt/dood, zoals het nu al is.
 
 ## Frontend
 
 **Nieuwe gedeelde component `PlayDayCalendar`** (bijv. `frontend/src/components/PlayDayCalendar.tsx`): toont de komende 12 weken, met per week een dinsdag- en donderdagknop. Props bepalen het gedrag:
 
-- `mode="single-per-week"` (Monthly/Yearly): per week is precies 1 dag aan te vinken; de andere dag in dezelfde week is uitgeschakeld zolang er al een keuze is, tenzij je eerst de huidige keuze annuleert (klikken op de nieuwe dag annuleert automatisch de oude en registreert de nieuwe, in één gebruikersactie).
-- `mode="unlimited"` (Per-sessie): beide dagen per week zijn onafhankelijk aan te vinken; aanvinken opent eerst `PlayDayPaymentModal` (bestaande component, hergebruikt ongewijzigd) en registreert pas na bevestiging.
+- `mode="single-per-week"` (Monthly/Yearly): per week is precies 1 dag aan te vinken; de andere dag in dezelfde week is uitgeschakeld zolang er al een keuze is, tenzij je eerst de huidige keuze annuleert (klikken op de nieuwe dag annuleert automatisch — via twee opeenvolgende calls — de oude registratie en maakt de nieuwe aan, als één gebruikersactie).
+- `mode="unlimited"` (Per-sessie): beide dagen per week zijn onafhankelijk aan te vinken; aanvinken opent eerst `PlayDayPaymentModal` (bestaande component, herwerkt om een datum + bevestig-callback te nemen in plaats van een bestaande registratie-id) en registreert pas na bevestiging.
 
 Geannuleerde/toekomstige eigen registraties tonen een "Annuleren"-link, net als bij Strippenkaart.
 
@@ -89,12 +89,19 @@ Geannuleerde/toekomstige eigen registraties tonen een "Annuleren"-link, net als 
 
 ## Niet in scope
 
-- Geen wijzigingen aan `PlayDay`, `Court`, `Match`, `MatchParticipation`, `Tournament`-modellen of de bijbehorende (stub) modules — die blijven ongemoeid voor eventuele toekomstige functionaliteit.
+- Geen wijzigingen aan `Court`, `Match`, `MatchParticipation`, `Tournament`-modellen of de bijbehorende (stub) modules — die blijven ongemoeid voor eventuele toekomstige functionaliteit. `PlayDay` verliest alleen zijn (ongebruikte) `registrations`-terugverwijzing omdat `PlayDayRegistration` niet langer aan `PlayDay` koppelt; de rest van het model blijft staan.
 - Geen capaciteitslimiet per speeldatum.
 - Geen echte betaal-gateway-integratie — de betaalbevestiging bij Per-sessie is zelf-attesterend, consistent met de rest van de applicatie.
 - Geen migratie van Proefles/Strippenkaart naar de nieuwe tabel.
+- Geen frontend-testinfrastructuur (er is nu geen enkele frontend-test in dit project); verificatie van de nieuwe dashboards/kalendercomponent gebeurt handmatig in de browser, zoals bij eerdere dashboard-features in dit project.
+
+## Implementatiedetails (velden en conventies)
+
+- Het bestaande `PunchCardSession`/`TrialLesson`-veldpatroon (`scheduledDate` als directe datum-kolom) wordt aangehouden. De dode frontend-scaffold (`playDaysApi.ts`, `PlayDayPaymentModal.tsx`) gebruikt nu nog het veld `playDate`; dit wordt tijdens implementatie hernoemd naar `scheduledDate` voor consistentie met de rest van de codebase.
+- Er bestaat in dit project geen migratiegeschiedenis (`backend/prisma/migrations` bestaat niet, ondanks een `prisma:migrate`-script) — het schema wordt tot nu toe blijkbaar met `prisma db push` gesynchroniseerd. Deze feature volgt dezelfde aanpak (`db push`) in plaats van een eerste `migrate dev` te forceren, om te voorkomen dat Prisma een destructieve reset voorstelt op een bestaande ontwikkeldatabase.
+- Het seed-script `backend/prisma/seed-accounts.ts` bevat momenteel geen Per-sessie testaccount (wel Proefles, Strippenkaart, Maandabonnement, Jaarabonnement, Admin). Er wordt een zesde account toegevoegd (`per-sessie@almerepickleball.nl`) zodat alle vijf abonnementsvormen handmatig te testen zijn.
 
 ## Testplan
 
 - Backend: unit tests voor `PlayDayRegistrationsService` — weeklimiet-logica (grens van kalenderweek, wisselen van dag), plan-guards, datumvalidatie (di/do, toekomst), annuleren van verlopen datum geweigerd.
-- Handmatig: elk van de vijf testaccounts (uit het seed-script) doorlopen het eigen dashboard en registreren/annuleren een speeldatum; admin-paneel tonen voor een datum met inschrijvingen uit meerdere abonnementsvormen tegelijk.
+- Handmatig: voor Proefles, Strippenkaart, Maandabonnement, Jaarabonnement en Per-sessie (vijf testaccounts) het eigen dashboard doorlopen en registreren/annuleren van een speeldatum; admin-paneel tonen voor een datum met inschrijvingen uit meerdere abonnementsvormen tegelijk.
